@@ -1,0 +1,2727 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0e1522">
+  <title>Smart Homework Tracker — ครู</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('hw_theme'); } catch (e) {}
+      if (t !== 'light' && t !== 'dark') {
+        t = (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+      }
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+<style>
+/* ============================================================
+   Smart Homework Tracker — CSS.html (เฟส 3)
+   ธีม Executive Dark (ค่าเริ่มต้น) + โหมดสว่างผ่าน [data-theme="light"]
+   ============================================================ */
+:root {
+  color-scheme: dark;
+  --bg: #0e1522;
+  --bg-2: #131c2d;
+  --surface: #18233a;
+  --surface-2: #1f2d4a;
+  --line: #2b3b5c;
+  --text: #eef2f9;
+  --muted: #a3b3cf;
+  --accent: #d9a441;
+  --accent-2: #f0c36d;
+  --on-accent: #1a1405;
+  --focus: #8ec5ff;
+
+  --ok: #3ddc97;     --ok-bg: rgba(61, 220, 151, .14);
+  --late: #ffb454;   --late-bg: rgba(255, 180, 84, .14);
+  --soon: #ffd84d;   --soon-bg: rgba(255, 216, 77, .13);
+  --bad: #ff7676;    --bad-bg: rgba(255, 118, 118, .14);
+  --info: #7ab4ff;   --info-bg: rgba(122, 180, 255, .14);
+  --neutral: #a3b3cf; --neutral-bg: rgba(163, 179, 207, .12);
+
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 10px 30px rgba(0, 0, 0, .35);
+  --font-head: 'Mitr', 'Sarabun', 'Noto Sans Thai', system-ui, sans-serif;
+  --font-body: 'Sarabun', 'Noto Sans Thai', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #f2f5fa;
+  --bg-2: #e9eef7;
+  --surface: #ffffff;
+  --surface-2: #f4f7fc;
+  --line: #d5deec;
+  --text: #121b2e;
+  --muted: #55657f;
+  --accent: #b9831a;
+  --accent-2: #9a6a0f;
+  --on-accent: #ffffff;
+  --focus: #1d5fd1;
+
+  --ok: #0c8a57;     --ok-bg: rgba(12, 138, 87, .11);
+  --late: #b86400;   --late-bg: rgba(184, 100, 0, .11);
+  --soon: #8a6d00;   --soon-bg: rgba(138, 109, 0, .12);
+  --bad: #c62f3a;    --bad-bg: rgba(198, 47, 58, .10);
+  --info: #1d5fd1;   --info-bg: rgba(29, 95, 209, .10);
+  --neutral: #55657f; --neutral-bg: rgba(85, 101, 127, .10);
+  --shadow: 0 8px 24px rgba(24, 44, 84, .10);
+}
+
+/* ---------- พื้นฐาน ---------- */
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: radial-gradient(1200px 500px at 50% -200px, var(--bg-2), var(--bg));
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.55;
+  min-height: 100vh;
+  -webkit-tap-highlight-color: transparent;
+}
+[hidden] { display: none !important; }
+h1, h2, h3 { font-family: var(--font-head); font-weight: 500; line-height: 1.3; margin: 0; }
+.h1 { font-size: 1.55rem; }
+.h2 { font-size: 1.15rem; }
+p { margin: 0; }
+.muted { color: var(--muted); }
+.small { font-size: .9rem; }
+.center { text-align: center; }
+.mt { margin-top: 14px; }
+.mt-lg { margin-top: 24px; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.row.between { justify-content: space-between; }
+.grow { flex: 1 1 auto; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 8px; }
+
+/* ---------- เลย์เอาต์ ---------- */
+.container { max-width: 720px; margin: 0 auto; padding: 16px 16px calc(28px + var(--safe-b)); }
+body[data-page="teacher"] .container { max-width: 980px; padding-bottom: calc(96px + var(--safe-b)); }
+
+.app-bar {
+  position: sticky; top: 0; z-index: 30;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: calc(10px + var(--safe-t)) 16px 10px;
+  background: color-mix(in srgb, var(--bg) 86%, transparent);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.brand-mark {
+  flex: none; width: 38px; height: 38px; border-radius: 12px;
+  display: grid; place-items: center; font-weight: 700;
+  background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: var(--on-accent);
+}
+.brand-title { font-family: var(--font-head); font-size: 1.02rem; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.brand-sub { font-size: .8rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-actions { display: flex; align-items: center; gap: 8px; }
+
+.icon-btn {
+  min-width: 44px; min-height: 44px; border-radius: 12px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--text); font-size: 1.1rem; cursor: pointer;
+}
+.icon-btn:active { transform: scale(.96); }
+
+/* ---------- การ์ด ---------- */
+.card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 18px; box-shadow: var(--shadow); margin-bottom: 14px;
+}
+.card.flat { box-shadow: none; }
+.card-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+
+/* ---------- ฟอร์ม ---------- */
+.field { margin-bottom: 14px; }
+.field label { display: block; font-weight: 600; margin-bottom: 6px; }
+.hint { font-size: .86rem; color: var(--muted); margin-top: 6px; min-height: 1.2em; }
+.hint.err { color: var(--bad); }
+.input {
+  width: 100%; min-height: 48px; padding: 10px 14px; border-radius: var(--radius-sm);
+  border: 1.5px solid var(--line); background: var(--surface-2); color: var(--text);
+  font: inherit;
+}
+.input::placeholder { color: var(--muted); opacity: .8; }
+.input:focus { border-color: var(--focus); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 28%, transparent); }
+.input-id { font-family: var(--font-head); font-size: 1.8rem; letter-spacing: .5em; text-align: center; padding-left: calc(14px + .5em); }
+textarea.input { min-height: 120px; resize: vertical; }
+select.input { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 20px) 55%, calc(100% - 14px) 55%; background-size: 6px 6px; background-repeat: no-repeat; padding-right: 38px; }
+.check { display: flex; align-items: center; gap: 10px; min-height: 44px; }
+.check input { width: 22px; height: 22px; accent-color: var(--accent); }
+
+/* ---------- ปุ่ม ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 46px; padding: 10px 18px; border-radius: 12px; border: 1.5px solid transparent;
+  font: inherit; font-weight: 700; cursor: pointer; text-decoration: none;
+  transition: transform .08s ease, filter .15s ease;
+}
+.btn:active { transform: scale(.98); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.primary { background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: var(--on-accent); }
+.btn.primary:not(:disabled):hover { filter: brightness(1.06); }
+.btn.ghost { background: transparent; color: var(--text); border-color: var(--line); }
+.btn.ok { background: var(--ok); color: #04210f; }
+.btn.danger { background: transparent; color: var(--bad); border-color: var(--bad); }
+.btn.lg { min-height: 56px; font-size: 1.1rem; border-radius: 14px; }
+.btn.sm { min-height: 38px; padding: 6px 12px; font-size: .92rem; border-radius: 10px; }
+.btn.block { display: flex; width: 100%; }
+
+/* ---------- ชิป / ป้ายสถานะ ---------- */
+.chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip {
+  flex: none; min-height: 40px; padding: 6px 16px; border-radius: 999px; cursor: pointer;
+  border: 1.5px solid var(--line); background: var(--surface); color: var(--muted); font: inherit; font-weight: 600;
+}
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 6px; padding: 3px 12px; border-radius: 999px;
+  font-size: .86rem; font-weight: 700; white-space: nowrap;
+  color: var(--c, var(--neutral)); background: var(--cbg, var(--neutral-bg));
+  border: 1px solid color-mix(in srgb, var(--c, var(--neutral)) 35%, transparent);
+}
+.st-submitted { --c: var(--ok);   --cbg: var(--ok-bg); }
+.st-late      { --c: var(--late); --cbg: var(--late-bg); }
+.st-excused   { --c: var(--info); --cbg: var(--info-bg); }
+.st-overdue   { --c: var(--bad);  --cbg: var(--bad-bg); }
+.st-due-soon  { --c: var(--soon); --cbg: var(--soon-bg); }
+.st-pending   { --c: var(--neutral); --cbg: var(--neutral-bg); }
+.badge.warn { --c: var(--late); --cbg: var(--late-bg); }
+
+/* ---------- ความคืบหน้า / สถิติ ---------- */
+.progress { height: 14px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); overflow: hidden; }
+.progress > span { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, var(--ok), var(--accent-2)); transition: width .6s ease; }
+.big-num { font-family: var(--font-head); font-size: 2.4rem; line-height: 1; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 10px; margin-top: 14px; }
+.stat { border: 1px solid var(--line); background: var(--surface-2); border-radius: 12px; padding: 10px 12px; }
+.stat b { display: block; font-family: var(--font-head); font-size: 1.5rem; font-weight: 500; line-height: 1.1; color: var(--c, var(--text)); }
+.stat span { font-size: .84rem; color: var(--muted); }
+
+/* ---------- รายการงาน ---------- */
+.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.hw-item {
+  display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start;
+  background: var(--surface); border: 1px solid var(--line); border-left: 5px solid var(--c, var(--line));
+  border-radius: 14px; padding: 14px;
+}
+.hw-icon { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; font-size: 1.3rem; background: var(--cbg, var(--neutral-bg)); }
+.hw-title { font-weight: 700; line-height: 1.35; }
+.hw-meta { font-size: .88rem; color: var(--muted); margin-top: 2px; }
+.hw-foot { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+.hw-note { margin-top: 8px; font-size: .9rem; padding: 8px 10px; border-radius: 10px; background: var(--surface-2); border: 1px dashed var(--line); }
+
+.avatar { width: 52px; height: 52px; border-radius: 16px; display: grid; place-items: center; font-family: var(--font-head); font-size: 1.4rem; background: linear-gradient(135deg, var(--accent-2), var(--accent)); color: var(--on-accent); flex: none; }
+
+/* ---------- สถานะว่าง / ผิดพลาด / โหลด ---------- */
+.empty, .error-state { text-align: center; padding: 28px 16px; color: var(--muted); }
+.empty .emo, .error-state .emo { font-size: 2.4rem; display: block; margin-bottom: 6px; }
+.alert { padding: 12px 14px; border-radius: 12px; margin-top: 12px; font-weight: 600; border: 1px solid; }
+.alert.error { color: var(--bad); background: var(--bad-bg); border-color: color-mix(in srgb, var(--bad) 40%, transparent); }
+.alert.info { color: var(--info); background: var(--info-bg); border-color: color-mix(in srgb, var(--info) 40%, transparent); }
+
+.skeleton { border-radius: 14px; height: 84px; margin-bottom: 10px; border: 1px solid var(--line);
+  background: linear-gradient(90deg, var(--surface) 25%, var(--surface-2) 37%, var(--surface) 63%); background-size: 400% 100%; animation: shimmer 1.4s ease infinite; }
+@keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
+
+.spinner { width: 20px; height: 20px; border-radius: 50%; border: 3px solid color-mix(in srgb, currentColor 25%, transparent); border-top-color: currentColor; animation: spin .8s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ---------- แบนเนอร์ / Toast / Modal ---------- */
+.banner { position: sticky; top: 0; z-index: 40; text-align: center; padding: 8px 12px; font-weight: 700; background: var(--late); color: #1b1100; }
+#toastHost { position: fixed; left: 0; right: 0; bottom: calc(86px + var(--safe-b)); z-index: 80; display: grid; gap: 8px; justify-items: center; pointer-events: none; padding: 0 16px; }
+body[data-page="student"] #toastHost { bottom: calc(24px + var(--safe-b)); }
+.toast { pointer-events: auto; max-width: 440px; width: 100%; padding: 12px 16px; border-radius: 12px; font-weight: 600; background: var(--surface-2); border: 1px solid var(--line); box-shadow: var(--shadow); animation: pop .22s ease; }
+.toast.ok { border-color: var(--ok); } .toast.err { border-color: var(--bad); } .toast.warn { border-color: var(--late); }
+@keyframes pop { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+.modal-backdrop { position: fixed; inset: 0; z-index: 90; background: rgba(4, 8, 16, .6); display: flex; align-items: flex-end; justify-content: center; }
+.modal { width: 100%; max-width: 560px; max-height: 92vh; overflow: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 20px 20px 0 0; padding: 20px 18px calc(18px + var(--safe-b)); animation: sheet .22s ease; }
+@keyframes sheet { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (min-width: 720px) { .modal-backdrop { align-items: center; } .modal { border-radius: 20px; } }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; flex-wrap: wrap; }
+
+.fullscreen-msg { min-height: 70vh; display: grid; place-items: center; text-align: center; padding: 24px; }
+.fullscreen-msg .card { max-width: 440px; }
+
+/* ---------- แถบเมนูล่าง (หน้าครู) ---------- */
+.tabbar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+  display: grid; grid-auto-flow: column; grid-auto-columns: 1fr;
+  padding: 6px 6px calc(6px + var(--safe-b));
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-top: 1px solid var(--line);
+}
+.tab { min-height: 56px; display: grid; place-items: center; gap: 0; padding: 4px 2px; border: 0; background: none; color: var(--muted); font: inherit; font-size: .78rem; font-weight: 700; border-radius: 12px; cursor: pointer; }
+.tab .ti { font-size: 1.3rem; line-height: 1.2; }
+.tab[aria-selected="true"] { color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+@media (max-width: 420px) { .tab { font-size: .7rem; padding: 4px 0; } .tab .ti { font-size: 1.15rem; } }
+
+.view { display: none; }
+.view.active { display: block; animation: pop .2s ease; }
+
+.user-chip { display: flex; align-items: center; gap: 8px; max-width: 46vw; padding: 4px 12px 4px 4px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); }
+.user-chip .avatar { width: 32px; height: 32px; border-radius: 50%; font-size: .95rem; }
+.user-chip span.name { font-size: .88rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.toolbar { display: grid; gap: 10px; grid-template-columns: 1fr; margin-bottom: 12px; }
+@media (min-width: 620px) { .toolbar.cols { grid-template-columns: 1fr 1fr; } }
+
+/* ---------- ตารางสถานะ (หน้าครู) แสดงเป็นรายการบนมือถือ ---------- */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
+table.tbl { width: 100%; border-collapse: collapse; min-width: 560px; }
+.tbl th, .tbl td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line); }
+.tbl th { font-size: .84rem; color: var(--muted); background: var(--surface-2); position: sticky; top: 0; }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl td.num { width: 60px; color: var(--muted); }
+
+/* ---------- เครื่องสแกน QR ---------- */
+.scanner-viewport {
+  position: relative; width: 100%; max-width: 440px; aspect-ratio: 1 / 1; margin: 0 auto;
+  background: #05080f; border-radius: 20px; overflow: hidden; border: 3px solid var(--line);
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+#scannerReader, #scannerReader video { width: 100% !important; height: 100% !important; object-fit: cover; }
+.scanner-frame { position: absolute; inset: 14%; pointer-events: none; }
+.scanner-frame i { position: absolute; width: 34px; height: 34px; border: 4px solid var(--accent-2); }
+.scanner-frame i:nth-child(1) { top: 0; left: 0; border-right: 0; border-bottom: 0; border-top-left-radius: 12px; }
+.scanner-frame i:nth-child(2) { top: 0; right: 0; border-left: 0; border-bottom: 0; border-top-right-radius: 12px; }
+.scanner-frame i:nth-child(3) { bottom: 0; left: 0; border-right: 0; border-top: 0; border-bottom-left-radius: 12px; }
+.scanner-frame i:nth-child(4) { bottom: 0; right: 0; border-left: 0; border-top: 0; border-bottom-right-radius: 12px; }
+.scanner-idle { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 24px; color: #9fb0cc; }
+.scanner-viewport.flash-ok  { border-color: var(--ok);   box-shadow: 0 0 0 6px var(--ok-bg); }
+.scanner-viewport.flash-dup { border-color: var(--late); box-shadow: 0 0 0 6px var(--late-bg); }
+.scanner-viewport.flash-err { border-color: var(--bad);  box-shadow: 0 0 0 6px var(--bad-bg); }
+.scanner-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 14px; }
+
+.scan-result { border-width: 2px; }
+.scan-result.ok  { border-color: var(--ok); }
+.scan-result.dup { border-color: var(--late); }
+.scan-result.err { border-color: var(--bad); }
+.scan-result .who { font-family: var(--font-head); font-size: 1.5rem; line-height: 1.25; }
+details.card > summary { cursor: pointer; font-weight: 700; min-height: 32px; }
+
+/* ---------- ใบงาน QR สำหรับพิมพ์ ---------- */
+.qr-sheet { display: grid; background: #fff; color: #000; }
+.qr-sheet.layout-card { grid-template-columns: repeat(2, 1fr); }
+.qr-sheet.layout-sticker { grid-template-columns: repeat(3, 1fr); }
+.qr-cell { display: flex; align-items: center; gap: 8px; padding: 8px; border: 1px dashed #8a8a8a; break-inside: avoid; page-break-inside: avoid; overflow: hidden; font-family: var(--font-body); }
+.qr-sheet.layout-card .qr-cell { height: 62mm; }
+.qr-sheet.layout-sticker .qr-cell { height: 33mm; padding: 4px 6px; font-size: 11px; }
+.qr-cell .qr-img { flex: none; line-height: 0; background: #fff; padding: 8px; }
+.qr-sheet.layout-card .qr-cell .qr-img { padding: 12px; }
+.qr-cell .qr-name { font-weight: 700; line-height: 1.25; }
+.qr-cell .qr-sub { font-size: .85em; color: #333; }
+.preview-scroll { overflow: auto; max-height: 60vh; border: 1px solid var(--line); border-radius: 12px; padding: 8px; background: #e7e7e7; }
+
+@page { size: A4; margin: 10mm; }
+@media print {
+  body { background: #fff !important; }
+  body * { visibility: hidden !important; }
+  #printPreview, #printPreview * { visibility: visible !important; }
+  #printPreview { position: absolute; left: 0; top: 0; width: 100%; }
+  .preview-scroll { max-height: none; overflow: visible; border: 0; padding: 0; background: #fff; }
+}
+
+/* ---------- ตารางงานทั้งห้อง ---------- */
+.matrix-controls { display: grid; grid-template-columns: 1.3fr 1fr; gap: 8px; margin-bottom: 4px; }
+.matrix-controls .input { min-width: 0; }
+.matrix-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.matrix-wrap { overflow: auto; max-height: 68vh; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+table.matrix { border-collapse: separate; border-spacing: 0; min-width: 100%; font-size: .92rem; }
+.matrix th, .matrix td { padding: 5px 6px; border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); text-align: center; background: var(--surface); }
+.matrix thead th { position: sticky; top: 0; z-index: 3; background: var(--surface-2); vertical-align: bottom; }
+.matrix th.m-name { position: sticky; left: 0; z-index: 2; text-align: left; min-width: 104px; max-width: 128px; font-size: .84rem; line-height: 1.3; font-weight: 600; background: var(--surface-2); }
+.matrix thead th.m-name { z-index: 4; }
+.matrix .m-no { display: inline-block; min-width: 1.3em; color: var(--muted); font-weight: 500; }
+.matrix td.m-sum { font-family: var(--font-head); white-space: nowrap; min-width: 42px; font-size: .84rem; }
+.matrix td.m-sum.m-over.has { color: var(--bad); font-weight: 700; }
+.matrix th.m-asg { min-width: 70px; max-width: 110px; font-weight: 600; font-size: .82rem; line-height: 1.3; }
+.matrix .m-t { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; }
+.matrix .m-d, .matrix .m-c { color: var(--muted); font-weight: 400; font-size: .78rem; }
+.matrix .m-c { color: var(--accent); font-weight: 700; }
+.matrix td.m-cell { cursor: pointer; font-size: 1.15rem; background: var(--cbg, var(--surface)); user-select: none; }
+.matrix td.m-cell:hover { filter: brightness(1.25); outline: 2px solid var(--accent); outline-offset: -2px; }
+.matrix tbody tr:last-child th, .matrix tbody tr:last-child td { border-bottom: 0; }
+
+/* ---------- ลดการเคลื่อนไหวตามระบบ ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+}
+@media (max-width: 380px) {
+  body { font-size: 16px; }
+  .input-id { font-size: 1.5rem; }
+}
+</style>
+
+</head>
+<body data-page="teacher">
+<div class="banner" id="offlineBanner" role="status" hidden>📡 ไม่มีสัญญาณอินเทอร์เน็ต — ข้อมูลอาจไม่ล่าสุด</div>
+<div id="toastHost" aria-live="polite"></div>
+<div id="modalHost"></div>
+
+<!-- ======================================================
+     หน้าครู
+     ====================================================== -->
+<header class="app-bar">
+  <div class="brand">
+    <div class="brand-mark" aria-hidden="true">✓</div>
+    <div>
+      <div class="brand-title">Smart Homework Tracker</div>
+      <div class="brand-sub" id="schoolName">สำหรับครู</div>
+    </div>
+  </div>
+  <div class="bar-actions">
+    <div class="user-chip" id="userChip" hidden>
+      <div class="avatar" id="userAvatar" aria-hidden="true">ค</div>
+      <span class="name" id="userName">—</span>
+    </div>
+    <button class="icon-btn" id="themeToggle" type="button" aria-label="สลับโหมดมืด/สว่าง">◐</button>
+  </div>
+</header>
+
+<!-- กำลังตรวจสิทธิ์ -->
+<div class="fullscreen-msg" id="bootLoading" aria-busy="true">
+  <div><span class="spinner"></span><p class="muted mt">กำลังตรวจสอบสิทธิ์...</p></div>
+</div>
+
+<!-- ไม่มีสิทธิ์ / ผิดพลาด -->
+<div class="fullscreen-msg" id="authError" hidden>
+  <div class="card">
+    <div style="font-size:2.4rem">🔒</div>
+    <h1 class="h2 mt">เข้าใช้งานไม่ได้</h1>
+    <p class="muted mt" id="authErrorMsg">—</p>
+    <button class="btn primary mt-lg" id="authRetry" type="button">ลองอีกครั้ง</button>
+  </div>
+</div>
+
+<!-- เข้าสู่ระบบด้วยอีเมล+รหัสผ่าน (ใช้เมื่อเปิดจากหน้าเว็บที่โฮสต์นอก Apps Script) -->
+<div class="fullscreen-msg" id="loginCard" hidden>
+  <div class="card" style="width:100%;max-width:420px;text-align:left">
+    <h1 class="h2">เข้าสู่ระบบสำหรับครู</h1>
+    <div class="field mt">
+      <label for="loginEmail">อีเมล</label>
+      <input class="input" id="loginEmail" type="email" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="ชื่อ@โรงเรียน.ac.th">
+    </div>
+    <div class="field">
+      <label for="loginPassword">รหัสผ่าน</label>
+      <input class="input" id="loginPassword" type="password" autocomplete="current-password">
+    </div>
+    <button class="btn primary lg block" id="btnLogin" type="button">เข้าสู่ระบบ</button>
+    <div class="alert error" id="loginMsg" role="alert" hidden></div>
+    <p class="muted small mt">ยังไม่มีรหัสผ่าน? ติดต่อผู้ดูแลระบบของโรงเรียน</p>
+  </div>
+</div>
+
+<main class="container" id="teacherApp" hidden>
+
+  <!-- เลือกห้อง (ใช้ร่วมทุกแท็บ) -->
+  <div class="field" style="max-width:320px">
+    <label for="classSelect">ห้องเรียน</label>
+    <select class="input" id="classSelect"></select>
+  </div>
+
+  <!-- ===== แท็บ 1: สแกน QR ===== -->
+  <section class="view active" id="view-scan" data-view="scan" aria-label="สแกน QR ตรวจการบ้าน">
+    <div class="card">
+      <div class="field" style="margin-bottom:10px">
+        <label for="scanAssignment">งานที่กำลังเก็บ</label>
+        <select class="input" id="scanAssignment"></select>
+      </div>
+      <div class="row">
+        <span class="badge st-submitted" id="scanCount">สแกนแล้ว 0 คน</span>
+        <span class="badge warn" id="queueBadge" hidden>รอซิงก์ 0 รายการ</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="scanner-viewport" id="scannerViewport">
+        <div id="scannerReader"></div>
+        <div class="scanner-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+        <div class="scanner-idle" id="scannerIdle">
+          <div><div style="font-size:2.6rem">📷</div><p class="mt">กด “เปิดกล้องสแกน” แล้วส่องไปที่ QR บนใบงาน</p></div>
+        </div>
+      </div>
+      <div class="scanner-actions">
+        <button class="btn primary lg" id="btnScanStart" type="button">📷 เปิดกล้องสแกน</button>
+        <button class="btn ghost lg" id="btnScanStop" type="button" hidden>หยุดสแกน</button>
+        <label class="btn ghost lg" for="scanFile">🖼️ ถ่ายรูป QR</label>
+        <input type="file" id="scanFile" accept="image/*" capture="environment" hidden>
+      </div>
+    </div>
+
+    <div class="card scan-result" id="scanResult" hidden aria-live="assertive">
+      <div class="row between">
+        <span class="badge" id="scanResultBadge">—</span>
+        <span class="muted small" id="scanResultTime"></span>
+      </div>
+      <div class="who mt" id="scanResultWho">—</div>
+      <div class="muted" id="scanResultSub">—</div>
+      <div class="alert" id="scanResultMsg" hidden></div>
+      <div class="row mt" id="scanResultActions">
+        <button class="btn ok lg grow" id="btnConfirmScan" type="button" hidden>✅ ยืนยันส่งแล้ว</button>
+        <button class="btn ghost" id="btnCancelScan" type="button" hidden>ยกเลิก</button>
+      </div>
+    </div>
+
+    <details class="card flat">
+      <summary>⌨️ กรอกรหัสด้วยมือ (กรณีกล้องใช้ไม่ได้)</summary>
+      <div class="field mt">
+        <label for="manualPayload">รหัสใน QR</label>
+        <input class="input" id="manualPayload" type="text" autocomplete="off" autocapitalize="off" placeholder="HW1.HW0001.12345.abcdef">
+      </div>
+      <button class="btn primary" id="btnManualScan" type="button">ตรวจรหัส</button>
+    </details>
+
+    <div class="card">
+      <div class="card-title"><h2 class="h2">สแกนล่าสุด</h2></div>
+      <ul class="list" id="recentScans"></ul>
+      <div class="empty" id="recentEmpty"><span class="emo">🧾</span>ยังไม่มีรายการสแกน</div>
+    </div>
+  </section>
+
+  <!-- ===== แท็บ 2: ติดตามงาน ===== -->
+  <section class="view" id="view-status" data-view="status" aria-label="ติดตามการส่งงาน">
+    <div class="card">
+      <div class="toolbar cols" style="margin-bottom:0">
+        <div class="field" style="margin:0">
+          <label for="statusAssignment">เลือกงาน</label>
+          <select class="input" id="statusAssignment"></select>
+        </div>
+        <div class="field" style="margin:0">
+          <label for="statusSearch">ค้นหานักเรียน</label>
+          <input class="input" id="statusSearch" type="search" placeholder="ชื่อ หรือเลขประจำตัว">
+        </div>
+      </div>
+      <div class="progress mt-lg" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="statusBar"><span></span></div>
+      <div class="stats" id="statusStats"></div>
+    </div>
+    <div id="statusSkeleton" hidden><div class="skeleton"></div><div class="skeleton"></div></div>
+    <div class="table-wrap" id="statusTableWrap">
+      <table class="tbl" aria-label="รายชื่อนักเรียนและสถานะ">
+        <thead><tr><th>เลขที่</th><th>ชื่อ-สกุล</th><th>สถานะ</th><th>เวลาที่ส่ง</th><th aria-label="จัดการ"></th></tr></thead>
+        <tbody id="statusBody"></tbody>
+      </table>
+    </div>
+    <div class="empty" id="statusEmpty"><span class="emo">📋</span>เลือกงานเพื่อดูสถานะนักเรียน</div>
+    <div class="error-state" id="statusError" hidden><span class="emo">⚠️</span><span id="statusErrorMsg">โหลดข้อมูลไม่สำเร็จ</span></div>
+  </section>
+
+  <!-- ===== แท็บ: ตารางงานทั้งห้อง ===== -->
+  <section class="view" id="view-matrix" data-view="matrix" aria-label="ตารางงานทั้งห้อง">
+    <div class="card" style="padding:14px">
+      <div class="card-title" style="margin-bottom:10px">
+        <h2 class="h2">ตารางงานทั้งห้อง</h2>
+        <div class="row" style="flex-wrap:nowrap">
+          <button class="icon-btn" id="btnMatrixRefresh" type="button" aria-label="รีเฟรช" title="รีเฟรช">↻</button>
+          <button class="icon-btn" id="btnMatrixExport" type="button" aria-label="ส่งออกเป็น Google Sheet" title="ส่งออกเป็น Google Sheet">📤</button>
+        </div>
+      </div>
+      <div class="matrix-controls">
+        <input class="input" id="matrixSearch" type="search" placeholder="ค้นหานักเรียน" aria-label="ค้นหานักเรียน">
+        <select class="input" id="matrixFilter" aria-label="กรองนักเรียน">
+          <option value="all">ทุกคน</option>
+          <option value="missing">ยังไม่ส่งบางงาน</option>
+          <option value="overdue">เลยกำหนด</option>
+        </select>
+      </div>
+      <label class="check"><input type="checkbox" id="matrixShowClosed"> รวมงานที่ปิดแล้ว</label>
+      <div class="muted small" id="matrixInfo"></div>
+      <details class="mt">
+        <summary class="small">สัญลักษณ์และวิธีใช้</summary>
+        <div class="matrix-legend small mt" aria-label="คำอธิบายสัญลักษณ์">
+          <span>✅ ส่งแล้ว</span><span>🕒 ส่งช้า</span><span>➖ ยกเว้น</span><span>🔴 เลยกำหนด</span><span>🟡 ใกล้ครบกำหนด</span><span>⏳ ยังไม่ถึงกำหนด</span>
+        </div>
+        <p class="muted small mt">แตะที่ช่องเพื่อแก้สถานะของนักเรียนคนนั้นในงานนั้น เลื่อนตารางซ้าย-ขวาได้ ชื่อนักเรียนและหัวตารางจะติดอยู่กับที่</p>
+      </details>
+    </div>
+    <div id="matrixSkeleton" hidden><div class="skeleton"></div><div class="skeleton"></div></div>
+    <div class="matrix-wrap" id="matrixWrap" hidden>
+      <table class="matrix" id="matrixTable" aria-label="ตารางสถานะการส่งงานของนักเรียนทั้งห้อง"></table>
+    </div>
+    <div class="empty" id="matrixEmpty" hidden><span class="emo">📊</span><span id="matrixEmptyMsg">ยังไม่มีข้อมูล</span></div>
+    <div class="error-state" id="matrixError" hidden><span class="emo">⚠️</span><span id="matrixErrorMsg">โหลดข้อมูลไม่สำเร็จ</span></div>
+  </section>
+
+  <!-- ===== แท็บ 3: ค้างส่ง ===== -->
+  <section class="view" id="view-missing" data-view="missing" aria-label="นักเรียนที่ค้างงาน">
+    <div class="card">
+      <div class="card-title">
+        <h2 class="h2">นักเรียนที่ค้างงาน</h2>
+        <div class="row">
+          <button class="btn ghost sm" id="btnExportReport" type="button">📤 ส่งออกรายงาน</button>
+        </div>
+      </div>
+      <div class="muted small" id="missingSummaryText">—</div>
+    </div>
+    <div id="missingSkeleton" hidden><div class="skeleton"></div><div class="skeleton"></div></div>
+    <ul class="list" id="missingList"></ul>
+    <div class="empty" id="missingEmpty" hidden><span class="emo">🎉</span>ไม่มีนักเรียนที่ค้างงานเลยกำหนด</div>
+    <div class="error-state" id="missingError" hidden><span class="emo">⚠️</span><span id="missingErrorMsg">โหลดข้อมูลไม่สำเร็จ</span></div>
+  </section>
+
+  <!-- ===== แท็บ 4: ใบงาน QR ===== -->
+  <section class="view" id="view-print" data-view="print" aria-label="สร้าง QR สำหรับพิมพ์">
+    <div class="card">
+      <h2 class="h2">สร้าง QR สำหรับติดใบงาน</h2>
+      <p class="muted small mt">1 QR = นักเรียน 1 คน + งาน 1 ชิ้น พิมพ์แล้วตัดแปะลงใบงานของแต่ละคน</p>
+      <div class="field mt-lg">
+        <label for="printAssignment">งาน</label>
+        <select class="input" id="printAssignment"></select>
+      </div>
+      <div class="field">
+        <label for="printLayout">รูปแบบ</label>
+        <select class="input" id="printLayout">
+          <option value="card">การ์ดใหญ่ 2×4 ต่อหน้า A4 (แนะนำ: ถ่ายรูปอ่านติดง่ายสุด)</option>
+          <option value="sticker">สติกเกอร์เล็ก 3×8 ต่อหน้า A4 (ต้องถ่ายรูปใกล้ๆ)</option>
+        </select>
+      </div>
+      <div class="row">
+        <label class="check"><input type="checkbox" id="printShowName" checked> แสดงชื่อ</label>
+        <label class="check"><input type="checkbox" id="printShowNumber" checked> แสดงเลขที่</label>
+      </div>
+      <div class="row mt">
+        <button class="btn primary" id="btnBuildQr" type="button">สร้างตัวอย่าง</button>
+        <button class="btn ghost" id="btnPrintQr" type="button" disabled>🖨️ พิมพ์</button>
+      </div>
+    </div>
+    <div class="preview-scroll" id="printScroll" hidden>
+      <div id="printPreview" class="qr-sheet layout-card"></div>
+    </div>
+    <div class="empty" id="printEmpty"><span class="emo">🖨️</span>เลือกงานแล้วกด “สร้างตัวอย่าง”</div>
+  </section>
+
+  <!-- ===== แท็บ 5: จัดการ ===== -->
+  <section class="view" id="view-manage" data-view="manage" aria-label="จัดการงานและระบบ">
+    <div class="card">
+      <div class="card-title">
+        <h2 class="h2">งานที่มอบหมาย</h2>
+        <button class="btn primary sm" id="btnNewAssignment" type="button">＋ เพิ่มงาน</button>
+      </div>
+      <label class="check"><input type="checkbox" id="manageShowClosed"> แสดงงานที่ปิดแล้ว</label>
+      <ul class="list mt" id="manageList"></ul>
+      <div class="empty" id="manageEmpty" hidden><span class="emo">📝</span>ยังไม่มีงานในห้องนี้</div>
+    </div>
+
+    <!-- เฉพาะผู้ดูแลระบบ (ADMIN) -->
+    <div id="adminArea" hidden>
+      <div class="card">
+        <h2 class="h2">นำเข้ารายชื่อนักเรียน</h2>
+        <p class="muted small mt">วางข้อมูลจาก Google Sheet/Excel แถวละ 1 คน คั่นด้วยแท็บ: เลขประจำตัว, คำนำหน้า, ชื่อ, นามสกุล, ห้อง, เลขที่</p>
+        <textarea class="input mt" id="importText" placeholder="12345&#9;เด็กชาย&#9;สมชาย&#9;ใจดี&#9;M2-3&#9;1"></textarea>
+        <div class="row mt">
+          <button class="btn primary" id="btnImport" type="button">นำเข้า</button>
+          <span class="muted small" id="importResult"></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <h2 class="h2">ครูและสิทธิ์</h2>
+          <button class="btn ghost sm" id="btnNewTeacher" type="button">＋ เพิ่มครู</button>
+        </div>
+        <ul class="list" id="teacherList"></ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <h2 class="h2">วิชา</h2>
+          <button class="btn ghost sm" id="btnNewSubject" type="button">＋ เพิ่มวิชา</button>
+        </div>
+        <ul class="list" id="subjectList"></ul>
+        <div class="empty" id="subjectEmpty" hidden><span class="emo">📚</span>ยังไม่มีวิชา (ไม่บังคับ ใช้จัดหมวดงาน)</div>
+      </div>
+
+      <div class="card">
+        <h2 class="h2">ตั้งค่าระบบ</h2>
+        <div class="field mt">
+          <label for="setSchoolName">ชื่อโรงเรียน</label>
+          <input class="input" id="setSchoolName" type="text" maxlength="100">
+        </div>
+        <div class="toolbar cols">
+          <div class="field" style="margin:0"><label for="setLateGrace">ผ่อนผันส่งช้า (ชั่วโมง)</label><input class="input" id="setLateGrace" type="number" min="0" inputmode="numeric"></div>
+          <div class="field" style="margin:0"><label for="setDueSoon">เตือนก่อนครบกำหนด (วัน)</label><input class="input" id="setDueSoon" type="number" min="0" inputmode="numeric"></div>
+          <input type="hidden" id="setAlert" value="3">
+        </div>
+        <label class="check mt"><input type="checkbox" id="setAutoConfirm"> บันทึกทันทีเมื่อสแกน (ไม่ต้องกดยืนยัน)</label>
+        <label class="check"><input type="checkbox" id="setUsePin"> นักเรียนต้องกรอก PIN เพิ่ม</label>
+        <label class="check"><input type="checkbox" id="setAllowClosed"> อนุญาตสแกนงานที่ปิดแล้ว</label>
+        <div class="row mt">
+          <button class="btn primary" id="btnSaveSettings" type="button">บันทึกการตั้งค่า</button>
+          <button class="btn ghost" id="btnGenPins" type="button">🔑 สร้าง PIN ให้ห้องที่เลือก</button>
+          <button class="btn ghost" id="btnRefreshData" type="button">🔄 โหลดข้อมูลชีตใหม่</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <h2 class="h2">ประวัติการใช้งาน</h2>
+          <button class="btn ghost sm" id="btnAudit" type="button">ดูล่าสุด</button>
+        </div>
+        <p class="muted small">ดูว่าใครสแกน แก้ไข ยกเลิก หรือนำเข้าข้อมูลเมื่อไร</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<nav class="tabbar" id="tabbar" aria-label="เมนูหลัก" hidden>
+  <button class="tab" type="button" data-view-target="scan" aria-selected="true"><span class="ti">📷</span>สแกน</button>
+  <button class="tab" type="button" data-view-target="status" aria-selected="false"><span class="ti">📋</span>ติดตามงาน</button>
+  <button class="tab" type="button" data-view-target="matrix" aria-selected="false"><span class="ti">📊</span>ตารางห้อง</button>
+  <button class="tab" type="button" data-view-target="missing" aria-selected="false"><span class="ti">⚠️</span>ค้างส่ง</button>
+  <button class="tab" type="button" data-view-target="print" aria-selected="false"><span class="ti">🖨️</span>ใบงาน QR</button>
+  <button class="tab" type="button" data-view-target="manage" aria-selected="false"><span class="ti">⚙️</span>จัดการ</button>
+</nav>
+
+<!-- แม่แบบฟอร์มสร้าง/แก้ไขงาน (ใช้ในเฟส 5) -->
+<template id="tplAssignmentForm">
+  <h2 class="h2" data-role="title">เพิ่มงานใหม่</h2>
+  <div class="field mt">
+    <label for="afTitle">ชื่องาน</label>
+    <input class="input" id="afTitle" type="text" maxlength="150" placeholder="เช่น ใบงานอยุธยา">
+  </div>
+  <div class="toolbar cols">
+    <div class="field" style="margin:0"><label for="afSubject">วิชา</label><select class="input" id="afSubject"></select></div>
+    <div class="field" style="margin:0"><label for="afDue">กำหนดส่ง</label><input class="input" id="afDue" type="date"></div>
+    <div class="field" style="margin:0"><label for="afMax">คะแนนเต็ม (ไม่บังคับ)</label><input class="input" id="afMax" type="number" min="0" inputmode="decimal"></div>
+  </div>
+  <div class="field mt">
+    <label for="afNote">หมายเหตุถึงนักเรียน (ไม่บังคับ)</label>
+    <input class="input" id="afNote" type="text" maxlength="300">
+  </div>
+  <div class="modal-actions">
+    <button class="btn ghost" type="button" data-role="cancel">ยกเลิก</button>
+    <button class="btn primary" type="button" data-role="save">บันทึก</button>
+  </div>
+</template>
+
+<script>
+  /* ============================================================
+     ตั้งค่าตรงนี้ครั้งเดียว: วางลิงก์เว็บแอป Apps Script (ที่ลงท้ายด้วย /exec)
+     ต้องเป็น deployment ที่ตั้ง Who has access = Anyone
+     ============================================================ */
+  var API_URL = 'https://script.google.com/macros/s/AKfycbznd6G1YYkAYR34woXQGELCPb79iyR_GLDcH9GiQBiIDgKUXiX59sLUWYXHnNkIVE97Ww/exec';
+  window.APP_CONFIG = { page: 'teacher', appUrl: '', apiUrl: API_URL };
+</script>
+<script>
+/* ============================================================
+   Smart Homework Tracker — JavaScript.html
+   เฟส 3: แกนกลาง (ตัวช่วย ธีม แท็บ ตรวจสิทธิ์ครู ค่าตั้งต้นหน้านักเรียน)
+   เฟส 4: เติมส่วนหน้านักเรียน (H.onStudentSubmit ...)
+   เฟส 5: เติมส่วนหน้าครู + ตัวสร้าง QR
+   เฟส 6: เติมโหมดสแกน + คิวออฟไลน์
+   ============================================================ */
+(function () {
+  'use strict';
+
+  var CFG = window.APP_CONFIG || {};
+  var H = window.HW = { cfg: CFG, state: {}, hooks: {} };
+
+  // ---------- ตัวช่วย DOM ----------
+  var $ = H.$ = function (sel, root) { return (root || document).querySelector(sel); };
+  var $$ = H.$$ = function (sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); };
+
+  H.esc = function (s) {
+    return String(s === null || s === undefined ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  };
+
+  H.show = function (el, on) {
+    if (typeof el === 'string') el = $(el);
+    if (el) el.hidden = on === false;
+  };
+
+  // ---------- โทเคนเข้าสู่ระบบ (ใช้เมื่อหน้านี้โฮสต์นอก Apps Script) ----------
+  var memToken = '';
+  H.external = !(window.google && window.google.script && window.google.script.run);
+  H.getToken = function () {
+    try { return localStorage.getItem('hw_token') || memToken; } catch (e) { return memToken; }
+  };
+  H.setToken = function (t) {
+    memToken = t || '';
+    try { if (t) localStorage.setItem('hw_token', t); else localStorage.removeItem('hw_token'); } catch (e) {}
+  };
+
+  // ---------- เรียก Backend → Promise ----------
+  // ทำงานได้ 2 แบบ: ในหน้าของ Apps Script (google.script.run) หรือเรียกผ่าน HTTP เมื่อโฮสต์นอก Apps Script
+  // คืนค่า data เมื่อสำเร็จ / throw Error ที่มี .code เมื่อ backend ตอบ ok:false
+  function netErr() {
+    var e = new Error('เชื่อมต่อเซิร์ฟเวอร์ไม่สำเร็จ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่');
+    e.code = 'NETWORK';
+    return e;
+  }
+
+  function callGas(fn, args) {
+    return new Promise(function (resolve, reject) {
+      var runner = google.script.run
+        .withSuccessHandler(function (res) {
+          if (res && res.ok) return resolve(res.data);
+          var e = new Error((res && res.message) || 'เกิดข้อผิดพลาด กรุณาลองใหม่');
+          e.code = (res && res.code) || 'ERROR';
+          reject(e);
+        })
+        .withFailureHandler(function () { reject(netErr()); });
+      // ถ้า Code.gs บน Apps Script เป็นเวอร์ชันเก่า จะไม่มีฟังก์ชันนี้ให้เรียก
+      if (typeof runner[fn] !== 'function') {
+        var eo = new Error('ระบบหลังบ้านยังเป็นเวอร์ชันเก่า (ไม่พบฟังก์ชัน ' + fn + ') กรุณาวาง Code.gs ล่าสุดใน Apps Script แล้ว Deploy เป็น New version');
+        eo.code = 'BACKEND_OUTDATED';
+        return reject(eo);
+      }
+      runner[fn].apply(runner, args);
+    });
+  }
+
+  function callHttp(fn, args) {
+    return new Promise(function (resolve, reject) {
+      var url = CFG.apiUrl;
+      if (!url || /PUT_YOUR/i.test(url)) {
+        var e0 = new Error('ยังไม่ได้ตั้งค่า API_URL ในไฟล์ index.html (วางลิงก์เว็บแอป Apps Script ที่ลงท้ายด้วย /exec)');
+        e0.code = 'NO_API_URL';
+        return reject(e0);
+      }
+      // ใช้ text/plain เพื่อเป็น "simple request" ไม่ต้องมี preflight (Apps Script ไม่รองรับ OPTIONS)
+      fetch(url, {
+        method: 'POST', redirect: 'follow',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ fn: fn, args: args, token: H.getToken() })
+      }).then(function (r) { return r.text(); }).then(function (txt) {
+        var res;
+        try { res = JSON.parse(txt); } catch (err) {
+          var eb = new Error('เซิร์ฟเวอร์ตอบกลับไม่ถูกต้อง ตรวจสอบว่าลิงก์ API ถูกต้อง และ deployment ตั้งเป็น Anyone');
+          eb.code = 'BAD_RESPONSE';
+          return reject(eb);
+        }
+        if (res && res.ok) return resolve(res.data);
+        var e = new Error((res && res.message) || 'เกิดข้อผิดพลาด กรุณาลองใหม่');
+        e.code = (res && res.code) || 'ERROR';
+        if (e.code === 'NOT_SIGNED_IN' && fn !== 'auth_login') {
+          H.setToken('');
+          document.dispatchEvent(new CustomEvent('hw:auth-required'));
+        }
+        reject(e);
+      }).catch(function () { reject(netErr()); });
+    });
+  }
+
+  H.api = function (fn) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    if (!H.external) return callGas(fn, args);
+    if (CFG.apiUrl) return callHttp(fn, args);
+    return Promise.reject(Object.assign(new Error('เปิดหน้านี้ผ่านลิงก์เว็บแอปของ Apps Script หรือหน้าที่ตั้งค่า API_URL แล้วเท่านั้น'), { code: 'NO_RUNTIME' }));
+  };
+
+  // ---------- วันที่แบบไทย (พ.ศ.) ----------
+  var MONTHS = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+  H.fmtDate = function (iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ''));
+    if (!m) return '';
+    return parseInt(m[3], 10) + ' ' + MONTHS[parseInt(m[2], 10) - 1] + ' ' + (parseInt(m[1], 10) + 543);
+  };
+  H.fmtDateTime = function (iso) {
+    var m = /T(\d{2}):(\d{2})/.exec(String(iso || ''));
+    return H.fmtDate(iso) + (m ? ' เวลา ' + m[1] + ':' + m[2] + ' น.' : '');
+  };
+
+  // ---------- สถานะงาน (ตรงกับ computeStatus_ ใน Code.gs) ----------
+  H.STATUS = {
+    SUBMITTED: { label: 'ส่งแล้ว', icon: '✅', cls: 'st-submitted' },
+    LATE:      { label: 'ส่งช้า', icon: '🕒', cls: 'st-late' },
+    EXCUSED:   { label: 'ได้รับการยกเว้น', icon: '➖', cls: 'st-excused' },
+    OVERDUE:   { label: 'เลยกำหนด', icon: '🔴', cls: 'st-overdue' },
+    DUE_SOON:  { label: 'ใกล้ครบกำหนด', icon: '🟡', cls: 'st-due-soon' },
+    PENDING:   { label: 'ยังไม่ส่ง', icon: '⏳', cls: 'st-pending' }
+  };
+  H.statusMeta = function (s) { return H.STATUS[s] || H.STATUS.PENDING; };
+  H.badge = function (s) {
+    var m = H.statusMeta(s);
+    return '<span class="badge ' + m.cls + '">' + m.icon + ' ' + m.label + '</span>';
+  };
+
+  // ---------- Toast ----------
+  H.toast = function (msg, type, ms) {
+    var host = $('#toastHost');
+    if (!host) return;
+    var el = document.createElement('div');
+    el.className = 'toast ' + (type || '');
+    el.setAttribute('role', 'status');
+    el.textContent = msg;
+    host.appendChild(el);
+    setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, ms || 3200);
+  };
+
+  // ---------- Modal ----------
+  // H.modal(node|html) → { close(), root }
+  H.modal = function (content) {
+    var host = $('#modalHost');
+    var back = document.createElement('div');
+    back.className = 'modal-backdrop';
+    var box = document.createElement('div');
+    box.className = 'modal';
+    box.setAttribute('role', 'dialog');
+    box.setAttribute('aria-modal', 'true');
+    if (typeof content === 'string') box.innerHTML = content; else box.appendChild(content);
+    back.appendChild(box);
+    host.appendChild(back);
+
+    function close() {
+      document.removeEventListener('keydown', onKey);
+      if (back.parentNode) back.parentNode.removeChild(back);
+    }
+    function onKey(e) { if (e.key === 'Escape') close(); }
+    document.addEventListener('keydown', onKey);
+    back.addEventListener('click', function (e) { if (e.target === back) close(); });
+    var first = box.querySelector('input,select,textarea,button');
+    if (first) first.focus();
+    return { close: close, root: box };
+  };
+
+  // ยืนยันการกระทำ → Promise<boolean>
+  H.confirm = function (title, message, okLabel, danger) {
+    return new Promise(function (resolve) {
+      var m = H.modal(
+        '<h2 class="h2">' + H.esc(title) + '</h2>' +
+        '<p class="muted mt">' + H.esc(message) + '</p>' +
+        '<div class="modal-actions"><button class="btn ghost" data-r="0" type="button">ยกเลิก</button>' +
+        '<button class="btn ' + (danger ? 'danger' : 'primary') + '" data-r="1" type="button">' + H.esc(okLabel || 'ตกลง') + '</button></div>');
+      m.root.addEventListener('click', function (e) {
+        var r = e.target && e.target.getAttribute && e.target.getAttribute('data-r');
+        if (r === null || r === undefined) return;
+        m.close();
+        resolve(r === '1');
+      });
+    });
+  };
+
+  // ---------- เติม <select> ----------
+  H.fillSelect = function (sel, items, valueFn, labelFn, placeholder) {
+    if (typeof sel === 'string') sel = $(sel);
+    if (!sel) return;
+    var html = placeholder ? '<option value="">' + H.esc(placeholder) + '</option>' : '';
+    items.forEach(function (it) {
+      html += '<option value="' + H.esc(valueFn(it)) + '">' + H.esc(labelFn(it)) + '</option>';
+    });
+    sel.innerHTML = html;
+  };
+
+  // ---------- ธีม ----------
+  function applyThemeIcon() {
+    var t = document.documentElement.getAttribute('data-theme');
+    var b = $('#themeToggle');
+    if (b) b.textContent = t === 'light' ? '☾' : '☀';
+  }
+  var themeBtn = $('#themeToggle');
+  if (themeBtn) {
+    themeBtn.addEventListener('click', function () {
+      var next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('hw_theme', next); } catch (e) {}
+      applyThemeIcon();
+    });
+  }
+  applyThemeIcon();
+
+  // ---------- แบนเนอร์ออฟไลน์ ----------
+  function syncOnline() {
+    var b = $('#offlineBanner');
+    if (b) b.hidden = navigator.onLine !== false;
+    document.dispatchEvent(new CustomEvent(navigator.onLine === false ? 'hw:offline' : 'hw:online'));
+  }
+  window.addEventListener('online', syncOnline);
+  window.addEventListener('offline', syncOnline);
+  syncOnline();
+
+  // ---------- สลับแท็บ (หน้าครู) ----------
+  H.go = function (name) {
+    $$('.view').forEach(function (v) { v.classList.toggle('active', v.getAttribute('data-view') === name); });
+    $$('.tab').forEach(function (t) { t.setAttribute('aria-selected', t.getAttribute('data-view-target') === name ? 'true' : 'false'); });
+    H.state.view = name;
+    window.scrollTo(0, 0);
+    document.dispatchEvent(new CustomEvent('hw:view', { detail: { view: name } }));
+  };
+
+  /* ============================================================
+     หน้าครู: ตรวจสิทธิ์ + โหลดข้อมูลตั้งต้น
+     ============================================================ */
+  function initTeacher() {
+    $$('.tab').forEach(function (t) {
+      t.addEventListener('click', function () { H.go(t.getAttribute('data-view-target')); });
+    });
+
+    function showLogin(msg) {
+      H.show('#bootLoading', false);
+      H.show('#authError', false);
+      H.show('#teacherApp', false);
+      H.show('#tabbar', false);
+      H.show('#userChip', false);
+      H.show('#loginCard', true);
+      var m = $('#loginMsg');
+      m.hidden = !msg;
+      m.textContent = msg || '';
+      var em = $('#loginEmail');
+      try { var last = localStorage.getItem('hw_last_email'); if (last && !em.value) em.value = last; } catch (e) {}
+      (em.value ? $('#loginPassword') : em).focus();
+    }
+
+    function doLogin() {
+      var em = $('#loginEmail').value.trim(), pw = $('#loginPassword').value;
+      if (!em || !pw) return showLogin('กรุณากรอกอีเมลและรหัสผ่าน');
+      var btn = $('#btnLogin');
+      btn.disabled = true;
+      H.api('auth_login', em, pw).then(function (res) {
+        H.setToken(res.token);
+        try { localStorage.setItem('hw_last_email', res.email); } catch (e) {}
+        $('#loginPassword').value = '';
+        H.show('#loginCard', false);
+        boot();
+      }).catch(function (err) {
+        showLogin(err.message);
+      }).then(function () { btn.disabled = false; });
+    }
+
+    function logout() {
+      H.api('auth_logout').catch(function () {}).then(function () { H.setToken(''); window.location.reload(); });
+    }
+
+    function openChangePassword() {
+      var m = H.modal('<h2 class="h2">เปลี่ยนรหัสผ่าน</h2>' +
+        '<div class="field mt"><label for="cpOld">รหัสผ่านเดิม</label><input class="input" id="cpOld" type="password" autocomplete="current-password"></div>' +
+        '<div class="field"><label for="cpNew">รหัสผ่านใหม่ (อย่างน้อย 8 ตัวอักษร)</label><input class="input" id="cpNew" type="password" autocomplete="new-password"></div>' +
+        '<div class="field"><label for="cpNew2">ยืนยันรหัสผ่านใหม่</label><input class="input" id="cpNew2" type="password" autocomplete="new-password"></div>' +
+        '<div class="modal-actions"><button class="btn ghost" type="button" data-r="x">ยกเลิก</button><button class="btn primary" type="button" data-r="ok">เปลี่ยนรหัสผ่าน</button></div>');
+      var r = m.root;
+      r.querySelector('[data-r="x"]').onclick = m.close;
+      r.querySelector('[data-r="ok"]').onclick = function () {
+        var btn = this, o = r.querySelector('#cpOld').value, n = r.querySelector('#cpNew').value, n2 = r.querySelector('#cpNew2').value;
+        if (n.length < 8) return H.toast('รหัสผ่านใหม่ต้องยาวอย่างน้อย 8 ตัวอักษร', 'warn');
+        if (n !== n2) return H.toast('รหัสผ่านใหม่สองช่องไม่ตรงกัน', 'warn');
+        btn.disabled = true;
+        H.api('auth_changePassword', o, n).then(function () { m.close(); H.toast('เปลี่ยนรหัสผ่านแล้ว', 'ok'); })
+          .catch(function (e) { H.toast(e.message, 'err', 4500); })
+          .then(function () { btn.disabled = false; });
+      };
+    }
+
+    function openAccountMenu() {
+      var u = H.state.boot.user;
+      var m = H.modal('<h2 class="h2">' + H.esc(u.name) + '</h2><p class="muted small">' + H.esc(u.email) + '</p>' +
+        '<div class="modal-actions" style="flex-direction:column;align-items:stretch">' +
+        '<button class="btn ghost" type="button" data-r="pw">🔑 เปลี่ยนรหัสผ่าน</button>' +
+        '<button class="btn danger" type="button" data-r="out">ออกจากระบบ</button>' +
+        '<button class="btn ghost" type="button" data-r="x">ปิด</button></div>');
+      m.root.querySelector('[data-r="x"]').onclick = m.close;
+      m.root.querySelector('[data-r="out"]').onclick = function () { m.close(); logout(); };
+      m.root.querySelector('[data-r="pw"]').onclick = function () { m.close(); openChangePassword(); };
+    }
+
+    var accountBound = false;
+    function bindAccount() {
+      if (!H.external || accountBound) return;
+      accountBound = true;
+      var chip = $('#userChip');
+      chip.style.cursor = 'pointer';
+      chip.setAttribute('role', 'button');
+      chip.setAttribute('tabindex', '0');
+      chip.title = 'บัญชีของฉัน';
+      chip.addEventListener('click', openAccountMenu);
+      chip.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openAccountMenu(); } });
+    }
+
+    function boot() {
+      H.show('#authError', false);
+      H.show('#loginCard', false);
+      if (H.external && !H.getToken()) return showLogin();
+      H.show('#bootLoading', true);
+      H.api('teacher_bootstrap').then(function (boot) {
+        H.state.boot = boot;
+        H.state.classId = boot.classes.length ? boot.classes[0].classId : '';
+
+        $('#schoolName').textContent = boot.settings.schoolName || 'สำหรับครู';
+        $('#userName').textContent = boot.user.name;
+        $('#userAvatar').textContent = (boot.user.name || 'ค').charAt(0);
+        H.show('#userChip', true);
+        bindAccount();
+
+        H.fillSelect('#classSelect', boot.classes,
+          function (c) { return c.classId; }, function (c) { return c.name; },
+          boot.classes.length ? '' : 'ยังไม่มีห้องที่ได้รับสิทธิ์');
+        if (H.state.classId) $('#classSelect').value = H.state.classId;
+        $('#classSelect').onchange = function () {
+          H.state.classId = this.value;
+          document.dispatchEvent(new CustomEvent('hw:class', { detail: { classId: H.state.classId } }));
+        };
+
+        H.show('#adminArea', boot.user.role === 'ADMIN');
+        H.show('#bootLoading', false);
+        H.show('#teacherApp', true);
+        H.show('#tabbar', true);
+        H.go('scan');
+        document.dispatchEvent(new CustomEvent('hw:ready', { detail: { page: 'teacher' } }));
+      }).catch(function (err) {
+        H.show('#bootLoading', false);
+        if (H.external && err.code === 'NOT_SIGNED_IN') return showLogin(err.message);
+        $('#authErrorMsg').textContent = err.message;
+        H.show('#authError', true);
+      });
+    }
+    $('#authRetry').addEventListener('click', boot);
+    $('#btnLogin').addEventListener('click', doLogin);
+    $('#loginPassword').addEventListener('keydown', function (e) { if (e.key === 'Enter') doLogin(); });
+    $('#loginEmail').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('#loginPassword').focus(); });
+    document.addEventListener('hw:auth-required', function () {
+      if (H.external) showLogin('เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่');
+    });
+    boot();
+  }
+
+  /* ============================================================
+     หน้านักเรียน: ค่าตั้งต้น + ตรวจรูปแบบเลขประจำตัว
+     (ส่วนค้นหา/แสดงผลจะเติมในเฟส 4 ผ่าน H.onStudentSubmit)
+     ============================================================ */
+  function initStudent() {
+    var idEl = $('#stId'), btn = $('#stSubmit'), pinEl = $('#stPin');
+
+    H.api('student_getConfig').then(function (cfg) {
+      H.state.config = cfg;
+      if (cfg.schoolName) $('#schoolName').textContent = cfg.schoolName;
+      H.show('#stPinField', !!cfg.usePin);
+    }).catch(function () { /* ใช้ค่าเริ่มต้นได้ ไม่ต้องแจ้งผู้ใช้ */ });
+
+    function validate() {
+      var v = idEl.value.replace(/\D/g, '').slice(0, 5);
+      if (idEl.value !== v) idEl.value = v;
+      var ok = v.length === 5;
+      btn.disabled = !ok;
+      var hint = $('#stIdHint');
+      hint.className = 'hint';
+      hint.textContent = v.length === 0 ? 'ตัวเลข 5 หลัก เช่น 12345'
+        : ok ? 'พร้อมแล้ว กดดูสถานะงานได้เลย' : 'ใส่อีก ' + (5 - v.length) + ' หลัก';
+      H.show('#stError', false);
+    }
+
+    function submit() {
+      if (btn.disabled) return;
+      var payload = { studentId: idEl.value, pin: pinEl ? pinEl.value : '' };
+      if (typeof H.hooks.onStudentSubmit === 'function') H.hooks.onStudentSubmit(payload);
+      else H.toast('ส่วนแสดงผลงานจะเปิดใช้ในเฟส 4', 'warn');
+    }
+
+    idEl.addEventListener('input', validate);
+    idEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') submit(); });
+    if (pinEl) pinEl.addEventListener('keydown', function (e) { if (e.key === 'Enter') submit(); });
+    btn.addEventListener('click', submit);
+    validate();
+    idEl.focus();
+    document.dispatchEvent(new CustomEvent('hw:ready', { detail: { page: 'student' } }));
+  }
+
+  // ---------- เริ่มทำงาน ----------
+  if (CFG.page === 'teacher') initTeacher(); else initStudent();
+
+  /* ============================================================
+     เฟส 4: หน้านักเรียน — ค้นหา แสดงผล กรอง เรียง รีเฟรช
+     ============================================================ */
+  (function studentFeature() {
+    if (CFG.page !== 'student') return;
+
+    var S = H.state.student = { id: '', pin: '', data: null, filter: 'all', sort: 'due-asc', fetchedAt: 0, busy: false };
+    var IDLE_MS = 5 * 60 * 1000;   // กลับหน้าแรกอัตโนมัติเมื่อไม่แตะจอ (เครื่องใช้ร่วมกันในห้อง)
+    var STALE_MS = 60 * 1000;      // กลับมาเปิดแท็บหลังเกินนี้ → รีเฟรชเงียบๆ
+    var idleTimer = null;
+
+    var DONE = { SUBMITTED: 1, LATE: 1, EXCUSED: 1 };
+    var RANK = { OVERDUE: 0, DUE_SOON: 1, PENDING: 2, LATE: 3, SUBMITTED: 4, EXCUSED: 5 };
+
+    // ---------- สลับหน้าจอ ----------
+    function screen(name) {
+      H.show('#stLogin', name === 'login');
+      H.show('#stLoading', name === 'loading');
+      H.show('#stResult', name === 'result');
+      S.screen = name;
+      if (name !== 'result') clearTimeout(idleTimer);
+    }
+
+    // ---------- วันที่ (เวลาไทย) ----------
+    function todayBkk() {
+      return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+    }
+    function utc(s) {
+      var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(s || ''));
+      return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) : NaN;
+    }
+    function relText(it) {
+      if (it.status === 'SUBMITTED' || it.status === 'LATE' || it.status === 'EXCUSED') return '';
+      var diff = Math.round((utc(it.dueDate) - utc(todayBkk())) / 86400000);
+      if (isNaN(diff)) return '';
+      if (it.status === 'OVERDUE') return 'เลยกำหนดมา ' + Math.max(1, -diff) + ' วัน';
+      if (diff < 0) return 'ครบกำหนดแล้ว (อยู่ในช่วงผ่อนผัน)';
+      if (diff === 0) return 'ครบกำหนดวันนี้';
+      if (diff === 1) return 'ครบกำหนดพรุ่งนี้';
+      return 'เหลืออีก ' + diff + ' วัน';
+    }
+
+    function initial(name) {
+      var n = String(name || '').replace(/^(เด็กชาย|เด็กหญิง|ด\.ช\.|ด\.ญ\.|นางสาว|นาย|นาง)\s*/, '');
+      return n.charAt(0) || '🙂';
+    }
+
+    // ---------- กรอง / เรียง ----------
+    function visibleItems() {
+      var items = (S.data && S.data.items ? S.data.items : []).slice();
+      if (S.filter === 'missing') items = items.filter(function (i) { return !DONE[i.status]; });
+      else if (S.filter === 'done') items = items.filter(function (i) { return !!DONE[i.status]; });
+
+      items.sort(function (a, b) {
+        if (S.sort === 'status') {
+          var d = (RANK[a.status] || 0) - (RANK[b.status] || 0);
+          return d !== 0 ? d : String(a.dueDate).localeCompare(String(b.dueDate));
+        }
+        var c = String(a.dueDate).localeCompare(String(b.dueDate));
+        return S.sort === 'due-desc' ? -c : c;
+      });
+      return items;
+    }
+
+    // ---------- วาดผล ----------
+    function itemHtml(it) {
+      var m = H.statusMeta(it.status);
+      var meta = [];
+      if (it.subjectName) meta.push(H.esc(it.subjectName));
+      meta.push(it.dueDate ? 'กำหนดส่ง ' + H.fmtDate(it.dueDate) : 'ไม่ระบุกำหนดส่ง');
+      var rel = relText(it);
+      var sent = (it.status === 'SUBMITTED' || it.status === 'LATE') && it.scannedAt ? 'ส่งเมื่อ ' + H.fmtDateTime(it.scannedAt) : '';
+
+      var foot = H.badge(it.status);
+      if (rel) foot += '<span class="muted small">' + H.esc(rel) + '</span>';
+      if (sent) foot += '<span class="muted small">' + H.esc(sent) + '</span>';
+      if (it.closed && !DONE[it.status]) foot += '<span class="badge st-pending">ปิดรับแล้ว</span>';
+
+      return '<li class="hw-item ' + m.cls + '">' +
+        '<div class="hw-icon" aria-hidden="true">' + m.icon + '</div>' +
+        '<div style="min-width:0">' +
+          '<div class="hw-title">' + H.esc(it.title) + '</div>' +
+          '<div class="hw-meta">' + meta.join(' · ') + '</div>' +
+          '<div class="hw-foot">' + foot + '</div>' +
+          (it.note ? '<div class="hw-note">📝 ' + H.esc(it.note) + '</div>' : '') +
+        '</div></li>';
+    }
+
+    function renderList() {
+      var items = visibleItems();
+      var total = S.data ? S.data.items.length : 0;
+      $('#stList').innerHTML = items.map(itemHtml).join('');
+
+      var empty = $('#stEmpty');
+      if (!items.length) {
+        var msg = total === 0 ? ['📭', 'ยังไม่มีงานที่มอบหมายให้ห้องนี้']
+          : S.filter === 'missing' ? ['🎉', 'ไม่มีงานค้างส่ง เก่งมาก!']
+          : ['📭', 'ยังไม่มีงานที่ส่งแล้ว'];
+        empty.innerHTML = '<span class="emo">' + msg[0] + '</span>' + msg[1];
+        empty.hidden = false;
+      } else {
+        empty.hidden = true;
+      }
+    }
+
+    function render() {
+      var d = S.data, sum = d.summary;
+      $('#stName').textContent = d.name;
+      $('#stAvatar').textContent = initial(d.name);
+      $('#stClass').textContent = 'ห้อง ' + d.classId + (d.number ? ' · เลขที่ ' + d.number : '');
+
+      var pct = sum.total ? Math.round((sum.done / sum.total) * 100) : 0;
+      $('#stPercent').textContent = pct + '%';
+      $('#stBar').setAttribute('aria-valuenow', String(pct));
+      $('#stBar span').style.width = pct + '%';
+
+      var text;
+      if (!sum.total) {
+        text = 'ยังไม่มีงานที่มอบหมาย';
+      } else {
+        text = 'ส่งแล้ว ' + sum.done + ' จากทั้งหมด ' + sum.total + ' งาน';
+        text += sum.missing ? ' • ค้างส่ง ' + sum.missing + ' งาน' : ' • ส่งครบแล้ว 🎉';
+        if (sum.excused) text += ' • ได้รับการยกเว้น ' + sum.excused + ' งาน';
+      }
+      $('#stSummaryText').textContent = text;
+
+      $('#sDone').textContent = sum.done;
+      $('#sMissing').textContent = sum.missing;
+      $('#sOverdue').textContent = sum.overdue;
+      $('#sLate').textContent = sum.late;
+
+      var t = new Date().toLocaleTimeString('th-TH', { timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit' });
+      $('#stUpdated').textContent = 'อัปเดตล่าสุด ' + t + ' น.';
+
+      renderList();
+    }
+
+    // ---------- โหลดข้อมูล ----------
+    function setRefreshBusy(on) {
+      var b = $('#stRefresh');
+      if (!b) return;
+      b.disabled = on;
+      b.innerHTML = on ? '<span class="spinner"></span>' : '↻';
+    }
+
+    function showLoginError(err) {
+      var box = $('#stError');
+      box.textContent = err.message;
+      box.hidden = false;
+      var hint = $('#stIdHint');
+      if (err.code === 'NOT_FOUND') { hint.className = 'hint err'; hint.textContent = 'ตรวจสอบเลขประจำตัวอีกครั้ง'; }
+      var pin = $('#stPin');
+      if (pin) pin.value = '';
+    }
+
+    function load(silent) {
+      if (S.busy) return;
+      S.busy = true;
+      if (silent) setRefreshBusy(true); else screen('loading');
+
+      H.api('student_getStatus', S.id, S.pin).then(function (data) {
+        S.data = data;
+        S.fetchedAt = Date.now();
+        render();
+        screen('result');
+        resetIdle();
+      }).catch(function (err) {
+        if (silent) H.toast(err.message, 'err');
+        else { screen('login'); showLoginError(err); }
+      }).then(function () {
+        S.busy = false;
+        setRefreshBusy(false);
+      });
+    }
+
+    function logout(auto) {
+      S.id = ''; S.pin = ''; S.data = null; S.filter = 'all';
+      $('#stId').value = '';
+      var pin = $('#stPin'); if (pin) pin.value = '';
+      $$('.chip[data-filter]').forEach(function (c) { c.setAttribute('aria-pressed', c.getAttribute('data-filter') === 'all' ? 'true' : 'false'); });
+      $('#stId').dispatchEvent(new Event('input'));
+      screen('login');
+      $('#stId').focus();
+      if (auto === true) H.toast('ออกจากหน้านี้อัตโนมัติเพื่อความเป็นส่วนตัว', 'warn', 4500);
+    }
+
+    // ---------- ออกอัตโนมัติเมื่อไม่ใช้งาน ----------
+    function resetIdle() {
+      clearTimeout(idleTimer);
+      if (S.screen !== 'result') return;
+      idleTimer = setTimeout(function () { logout(true); }, IDLE_MS);
+    }
+    ['click', 'keydown', 'touchstart', 'scroll'].forEach(function (ev) {
+      window.addEventListener(ev, resetIdle, { passive: true });
+    });
+
+    // กลับมาเปิดแท็บ/แอปอีกครั้ง → รีเฟรชถ้าข้อมูลเก่าเกิน 1 นาที
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden && S.screen === 'result' && Date.now() - S.fetchedAt > STALE_MS) load(true);
+    });
+
+    // ---------- เชื่อมปุ่ม ----------
+    H.hooks.onStudentSubmit = function (p) {
+      S.id = p.studentId;
+      S.pin = p.pin || '';
+      load(false);
+    };
+
+    $('#stRefresh').addEventListener('click', function () { load(true); });
+    $('#stLogout').addEventListener('click', function () { logout(false); });
+    $('#stSort').addEventListener('change', function () { S.sort = this.value; renderList(); });
+    $$('.chip[data-filter]').forEach(function (chip) {
+      chip.addEventListener('click', function () {
+        S.filter = chip.getAttribute('data-filter');
+        $$('.chip[data-filter]').forEach(function (c) { c.setAttribute('aria-pressed', c === chip ? 'true' : 'false'); });
+        renderList();
+      });
+    });
+
+    screen('login');
+  })();
+
+  /* ============================================================
+     เฟส 5: หน้าครู — ติดตามงาน ค้างส่ง ใบงาน QR จัดการงาน/ผู้ดูแลระบบ
+     (โหมดสแกนกล้องอยู่ในเฟส 6 โดยใช้ H.teacher.active และ H.loadScript)
+     ============================================================ */
+  (function teacherFeature() {
+    if (CFG.page !== 'teacher') return;
+
+    var QR_SRC = ['https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js',
+                  'https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@master/qrcode.min.js'];
+    var T = H.teacher = { list: [], active: '', status: null, qr: null, bound: false };
+    T.openStatusModal = openStatusModal; // ใช้ซ้ำจากแท็บ "ตารางห้อง" 
+    var esc = H.esc;
+
+    // ---------- ตัวช่วย ----------
+    function val(sel) { var e = $(sel); return e ? e.value : ''; }
+    function isAdmin() { return !!(H.state.boot && H.state.boot.user.role === 'ADMIN'); }
+    function track(btn, p) {
+      if (btn) btn.disabled = true;
+      var done = function () { if (btn) btn.disabled = false; };
+      p.then(done, done);
+      return p;
+    }
+    function setBar(sel, pct) {
+      var b = $(sel);
+      b.setAttribute('aria-valuenow', String(pct));
+      $(sel + ' span').style.width = pct + '%';
+    }
+    function stat(n, label, color) {
+      return '<div class="stat" style="--c:' + color + '"><b>' + esc(n) + '</b><span>' + esc(label) + '</span></div>';
+    }
+    function todayPlus(days) {
+      var d = new Date(Date.now() + days * 86400000);
+      return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+    }
+    function fail(e) { H.toast(e.message, 'err', 4500); }
+
+    // โหลดไลบรารีภายนอกครั้งเดียว (ใช้ซ้ำในเฟส 6)
+    H.loadScript = function (srcOrList) {
+      var list = Array.isArray(srcOrList) ? srcOrList : [srcOrList];
+      var key = list[0];
+      H._scripts = H._scripts || {};
+      if (H._scripts[key]) return H._scripts[key];
+
+      function loadOne(src) {
+        return new Promise(function (resolve, reject) {
+          var el = document.createElement('script');
+          el.src = src; el.async = true;
+          el.onload = resolve;
+          el.onerror = function () { if (el.parentNode) el.parentNode.removeChild(el); reject(new Error('load failed: ' + src)); };
+          document.head.appendChild(el);
+        });
+      }
+
+      // ลองลิงก์แรก ถ้าโหลดไม่ได้ลองลิงก์สำรองถัดไป
+      H._scripts[key] = list.reduce(function (p, src) {
+        return p.catch(function () { return loadOne(src); });
+      }, Promise.reject()).catch(function () {
+        delete H._scripts[key];
+        throw new Error('โหลดไลบรารีไม่สำเร็จ กรุณาตรวจสอบอินเทอร์เน็ตแล้วลองใหม่');
+      });
+      return H._scripts[key];
+    };
+
+    // ============================================================
+    // รายการงาน + ตัวเลือกงานที่ใช้ร่วมกันทุกแท็บ
+    // ============================================================
+    function aLabel(a) {
+      return (a.status === 'CLOSED' ? '🔒 ' : '') + a.title + (a.subjectName ? ' · ' + a.subjectName : '') +
+        ' (ส่ง ' + H.fmtDate(a.dueDate) + ')';
+    }
+    function aId(a) { return a.assignmentId; }
+
+    function syncSelects() {
+      ['#scanAssignment', '#statusAssignment', '#printAssignment'].forEach(function (s) {
+        var el = $(s);
+        el.value = T.active;
+        if (el.selectedIndex < 0 && el.options.length) el.selectedIndex = 0;
+      });
+    }
+
+    function fillSelects() {
+      var open = T.list.filter(function (a) { return a.status !== 'CLOSED'; });
+      H.fillSelect('#scanAssignment', open, aId, aLabel, open.length ? '' : 'ยังไม่มีงานที่เปิดอยู่');
+      var ph = T.list.length ? 'เลือกงาน' : 'ยังไม่มีงานในห้องนี้';
+      H.fillSelect('#statusAssignment', T.list, aId, aLabel, ph);
+      H.fillSelect('#printAssignment', T.list, aId, aLabel, ph);
+      if (!T.list.some(function (a) { return a.assignmentId === T.active; })) {
+        T.active = open.length ? open[0].assignmentId : (T.list[0] ? T.list[0].assignmentId : '');
+      }
+      syncSelects();
+    }
+
+    function refreshAssignments() {
+      var cid = H.state.classId;
+      if (!cid) { T.list = []; fillSelects(); return Promise.resolve(); }
+      return H.api('teacher_listAssignments', cid, true).then(function (list) {
+        T.list = list;
+        fillSelects();
+      }).catch(fail);
+    }
+
+    function resetPrint() {
+      T.qr = null;
+      $('#printScroll').hidden = true;
+      $('#printEmpty').hidden = false;
+      $('#btnPrintQr').disabled = true;
+      $('#printPreview').innerHTML = '';
+    }
+
+    function setActive(id) {
+      if (id === T.active) return;
+      T.active = id;
+      syncSelects();
+      resetPrint();
+      document.dispatchEvent(new CustomEvent('hw:assignment', { detail: { assignmentId: id } }));
+      if (H.state.view === 'status') loadStatus();
+    }
+
+    // ============================================================
+    // แท็บ: ติดตามงาน
+    // ============================================================
+    var METHOD = { QR: 'สแกน QR', MANUAL: 'ครูแก้ไข', OFFLINE: 'สแกน (ออฟไลน์)' };
+
+    function loadStatus() {
+      var id = T.active;
+      var skel = $('#statusSkeleton'), wrap = $('#statusTableWrap'), empty = $('#statusEmpty'), err = $('#statusError');
+      err.hidden = true;
+      if (!id) {
+        wrap.hidden = true; skel.hidden = true; empty.hidden = false;
+        $('#statusStats').innerHTML = ''; setBar('#statusBar', 0);
+        return;
+      }
+      empty.hidden = true; wrap.hidden = true; skel.hidden = false;
+      H.api('teacher_getAssignmentStatus', id).then(function (d) {
+        if (id !== T.active) return;
+        T.status = d;
+        renderStatus();
+        skel.hidden = true; wrap.hidden = false;
+      }).catch(function (e) {
+        skel.hidden = true;
+        $('#statusErrorMsg').textContent = e.message;
+        err.hidden = false;
+      });
+    }
+
+    function renderStatus() {
+      var d = T.status, s = d.summary;
+      setBar('#statusBar', s.percent);
+      $('#statusStats').innerHTML =
+        stat(s.percent + '%', 'ความคืบหน้า', 'var(--accent)') + stat(s.done, 'ส่งแล้ว', 'var(--ok)') +
+        stat(s.late, 'ส่งช้า', 'var(--late)') + stat(s.excused, 'ยกเว้น', 'var(--info)') +
+        stat(s.missing, 'ยังไม่ส่ง', 'var(--bad)');
+
+      var q = val('#statusSearch').trim().toLowerCase();
+      var rows = d.rows.filter(function (r) {
+        return !q || r.name.toLowerCase().indexOf(q) >= 0 || r.studentId.indexOf(q) >= 0;
+      });
+      $('#statusBody').innerHTML = rows.length ? rows.map(function (r) {
+        var extra = '';
+        if (r.score !== '') extra += ' · คะแนน ' + esc(r.score) + (d.assignment.maxScore ? '/' + esc(d.assignment.maxScore) : '');
+        if (r.note) extra += ' · ' + esc(r.note);
+        var when = r.scannedAt ? esc(H.fmtDateTime(r.scannedAt)) + (METHOD[r.method] ? '<div class="muted small">' + METHOD[r.method] + '</div>' : '') : '—';
+        return '<tr><td class="num">' + esc(r.number) + '</td>' +
+          '<td><div>' + esc(r.name) + '</div><div class="muted small">' + esc(r.studentId) + extra + '</div></td>' +
+          '<td>' + H.badge(r.status) + '</td><td class="small">' + when + '</td>' +
+          '<td><button class="btn ghost sm" type="button" data-sid="' + esc(r.studentId) + '">แก้ไข</button></td></tr>';
+      }).join('') : '<tr><td colspan="5" class="center muted">ไม่พบนักเรียนที่ค้นหา</td></tr>';
+    }
+
+    function openStatusModal(row, asg) {
+      var a = asg || T.status.assignment;
+      var recorded = row.status === 'SUBMITTED' || row.status === 'LATE' || row.status === 'EXCUSED';
+      var m = H.modal(
+        '<h2 class="h2">' + esc(row.name) + '</h2>' +
+        '<p class="muted small">เลขที่ ' + esc(row.number) + ' · ' + esc(a.title) + '</p>' +
+        '<div class="field mt"><label for="smStatus">สถานะ</label><select class="input" id="smStatus">' +
+          '<option value="SUBMITTED">ส่งแล้ว</option><option value="LATE">ส่งช้า</option>' +
+          '<option value="EXCUSED">ได้รับการยกเว้น (ลา/ป่วย)</option><option value="NONE">ยังไม่ส่ง (ยกเลิกการบันทึก)</option></select></div>' +
+        (a.maxScore ? '<div class="field"><label for="smScore">คะแนน (เต็ม ' + esc(a.maxScore) + ')</label><input class="input" id="smScore" type="number" min="0" inputmode="decimal"></div>' : '') +
+        '<div class="field"><label for="smNote">หมายเหตุ</label><input class="input" id="smNote" type="text" maxlength="200"></div>' +
+        '<div class="modal-actions"><button class="btn ghost" type="button" data-r="cancel">ยกเลิก</button>' +
+        '<button class="btn primary" type="button" data-r="save">บันทึก</button></div>');
+      var r = m.root;
+      r.querySelector('#smStatus').value = recorded ? row.status : 'SUBMITTED';
+      if (r.querySelector('#smScore')) r.querySelector('#smScore').value = row.score;
+      r.querySelector('#smNote').value = row.note;
+      r.querySelector('[data-r="cancel"]').onclick = m.close;
+      r.querySelector('[data-r="save"]').onclick = function () {
+        var btn = this;
+        var extra = { note: r.querySelector('#smNote').value, score: r.querySelector('#smScore') ? r.querySelector('#smScore').value : '' };
+        track(btn, H.api('teacher_setStatus', a.assignmentId, row.studentId, r.querySelector('#smStatus').value, extra))
+          .then(function () {
+            m.close(); H.toast('บันทึกแล้ว', 'ok');
+            document.dispatchEvent(new CustomEvent('hw:status-changed'));
+            if (T.status && T.status.assignment.assignmentId === a.assignmentId) loadStatus();
+          })
+          .catch(fail);
+      };
+    }
+
+    // ============================================================
+    // แท็บ: ค้างส่ง
+    // ============================================================
+    function loadMissing() {
+      var cid = H.state.classId;
+      var skel = $('#missingSkeleton'), list = $('#missingList'), empty = $('#missingEmpty'), err = $('#missingError');
+      err.hidden = true; empty.hidden = true; list.innerHTML = '';
+      if (!cid) { $('#missingSummaryText').textContent = 'ยังไม่ได้เลือกห้อง'; return; }
+      skel.hidden = false;
+      H.api('teacher_getMissingSummary', cid).then(function (d) {
+        skel.hidden = true;
+        $('#missingSummaryText').textContent = 'ค้างงานเลยกำหนด ' + d.students.length + ' คน จากนักเรียนทั้งหมด ' + d.totalStudents + ' คน (งานในห้องนี้ ' + d.assignmentCount + ' ชิ้น)';
+        empty.hidden = d.students.length > 0;
+        list.innerHTML = d.students.map(function (s) {
+          var titles = s.overdueTitles.slice(0, 4).map(esc).join(' • ');
+          if (s.overdueTitles.length > 4) titles += ' • และอีก ' + (s.overdueTitles.length - 4) + ' งาน';
+          return '<li class="hw-item st-overdue"><div class="hw-icon" aria-hidden="true">' + esc(s.number || '–') + '</div>' +
+            '<div style="min-width:0"><div class="hw-title">' + esc(s.name) + '</div>' +
+            '<div class="hw-meta">' + titles + '</div>' +
+            '<div class="hw-foot"><span class="badge st-overdue">🔴 ค้าง ' + s.overdueCount + ' งาน</span>' +
+            (s.pendingCount ? '<span class="muted small">ยังไม่ถึงกำหนดอีก ' + s.pendingCount + ' งาน</span>' : '') + '</div></div></li>';
+        }).join('');
+      }).catch(function (e) {
+        skel.hidden = true;
+        $('#missingErrorMsg').textContent = e.message;
+        err.hidden = false;
+      });
+    }
+
+    function exportReport() {
+      var cid = H.state.classId;
+      if (!cid) return H.toast('ยังไม่ได้เลือกห้อง', 'warn');
+      track($('#btnExportReport'), H.api('teacher_exportReport', cid)).then(function (r) {
+        var m = H.modal('<h2 class="h2">สร้างรายงานแล้ว ✅</h2>' +
+          '<p class="muted mt">รายงานสรุปการส่งงานของห้อง ' + esc(cid) + ' ถูกแชร์ให้บัญชีของคุณแบบดูอย่างเดียว</p>' +
+          '<div class="modal-actions"><button class="btn ghost" type="button" data-r="x">ปิด</button>' +
+          '<a class="btn primary" href="' + esc(r.url) + '" target="_blank" rel="noopener">เปิดรายงาน</a></div>');
+        m.root.querySelector('[data-r="x"]').onclick = m.close;
+      }).catch(fail);
+    }
+
+    // ============================================================
+    // แท็บ: ใบงาน QR (สร้างฝั่งเครื่องด้วย qrcodejs ไม่ส่งข้อมูลนักเรียนออกนอกระบบ)
+    // ============================================================
+    function buildQr() {
+      var id = val('#printAssignment');
+      if (!id) return H.toast('กรุณาเลือกงานก่อน', 'warn');
+      track($('#btnBuildQr'), H.api('teacher_getQrBatch', id).then(function (d) {
+        T.qr = d;
+        return renderQr();
+      })).catch(fail);
+    }
+
+    function renderQr() {
+      var d = T.qr;
+      if (!d) return Promise.resolve();
+      return H.loadScript(QR_SRC).then(function () {
+        var layout = val('#printLayout');
+        var showName = $('#printShowName').checked, showNum = $('#printShowNumber').checked;
+        var size = layout === 'card' ? 164 : 96;
+        var sheet = $('#printPreview');
+        sheet.className = 'qr-sheet layout-' + layout;
+        sheet.innerHTML = '';
+        var a = d.assignment;
+
+        d.items.forEach(function (it) {
+          var cell = document.createElement('div');
+          cell.className = 'qr-cell';
+          var box = document.createElement('div');
+          box.className = 'qr-img';
+          cell.appendChild(box);
+          new QRCode(box, { text: it.payload, width: size, height: size, correctLevel: QRCode.CorrectLevel.M });
+
+          var h = '';
+          if (showName) h += '<div class="qr-name">' + esc(it.name) + '</div>';
+          if (showNum) h += '<div class="qr-sub">เลขที่ ' + esc(it.number) + '</div>';
+          h += '<div class="qr-sub"' + (layout === 'sticker' ? ' style="font-size:.78em"' : '') + '>' + esc(a.title) + '</div>';
+          if (layout === 'card' && a.dueDate) h += '<div class="qr-sub">กำหนดส่ง ' + esc(H.fmtDate(a.dueDate)) + '</div>';
+          var txt = document.createElement('div');
+          txt.innerHTML = h;
+          cell.appendChild(txt);
+          sheet.appendChild(cell);
+        });
+
+        $('#printScroll').hidden = false;
+        $('#printEmpty').hidden = true;
+        $('#btnPrintQr').disabled = !d.items.length;
+        var perPage = layout === 'card' ? 8 : 24;
+        H.toast('สร้าง QR ' + d.items.length + ' ใบ (ประมาณ ' + Math.max(1, Math.ceil(d.items.length / perPage)) + ' หน้า A4)', 'ok');
+      });
+    }
+
+    // ============================================================
+    // แท็บ: จัดการ — งานที่มอบหมาย
+    // ============================================================
+    function renderManage() {
+      var showClosed = $('#manageShowClosed').checked;
+      var list = T.list.filter(function (a) { return showClosed || a.status !== 'CLOSED'; });
+      $('#manageEmpty').hidden = list.length > 0;
+      $('#manageList').innerHTML = list.map(function (a) {
+        var closed = a.status === 'CLOSED';
+        return '<li class="hw-item ' + (closed ? 'st-pending' : 'st-submitted') + '" data-id="' + esc(a.assignmentId) + '">' +
+          '<div class="hw-icon" aria-hidden="true">' + (closed ? '🔒' : '📝') + '</div>' +
+          '<div style="min-width:0"><div class="hw-title">' + esc(a.title) + '</div>' +
+          '<div class="hw-meta">' + esc(a.assignmentId) + (a.subjectName ? ' · ' + esc(a.subjectName) : '') + ' · ส่ง ' + esc(H.fmtDate(a.dueDate)) + '</div>' +
+          (a.note ? '<div class="hw-note">📝 ' + esc(a.note) + '</div>' : '') +
+          '<div class="hw-foot">' +
+            '<button class="btn ghost sm" type="button" data-act="status">📋 สถานะ</button>' +
+            '<button class="btn ghost sm" type="button" data-act="qr">🖨️ QR</button>' +
+            '<button class="btn ghost sm" type="button" data-act="edit">แก้ไข</button>' +
+            '<button class="btn ' + (closed ? 'ghost' : 'danger') + ' sm" type="button" data-act="' + (closed ? 'reopen' : 'close') + '">' + (closed ? 'เปิดรับอีกครั้ง' : 'ปิดงาน') + '</button>' +
+          '</div></div></li>';
+      }).join('');
+    }
+
+    function openAssignmentForm(a) {
+      if (!H.state.classId) return H.toast('กรุณาเลือกห้องก่อน', 'warn');
+      var tpl = document.getElementById('tplAssignmentForm');
+      var m = H.modal(tpl.content.cloneNode(true));
+      var r = m.root;
+      r.querySelector('[data-role="title"]').textContent = a ? 'แก้ไขงาน' : 'เพิ่มงานใหม่ (ห้อง ' + H.state.classId + ')';
+      H.fillSelect(r.querySelector('#afSubject'), H.state.boot.subjects,
+        function (s) { return s.subjectId; }, function (s) { return s.name; }, 'ไม่ระบุวิชา');
+      r.querySelector('#afTitle').value = a ? a.title : '';
+      r.querySelector('#afSubject').value = a ? a.subjectId : '';
+      r.querySelector('#afDue').value = a ? a.dueDate : todayPlus(7);
+      r.querySelector('#afMax').value = a ? a.maxScore : '';
+      r.querySelector('#afNote').value = a ? a.note : '';
+      r.querySelector('[data-role="cancel"]').onclick = m.close;
+      r.querySelector('[data-role="save"]').onclick = function () {
+        var data = {
+          assignmentId: a ? a.assignmentId : '', classId: H.state.classId,
+          title: r.querySelector('#afTitle').value.trim(), subjectId: r.querySelector('#afSubject').value,
+          dueDate: r.querySelector('#afDue').value, maxScore: r.querySelector('#afMax').value,
+          note: r.querySelector('#afNote').value
+        };
+        if (!data.title) return H.toast('กรุณากรอกชื่องาน', 'warn');
+        if (!data.dueDate) return H.toast('กรุณาเลือกวันกำหนดส่ง', 'warn');
+        track(this, H.api('teacher_saveAssignment', data)).then(function (res) {
+          m.close();
+          H.toast(a ? 'แก้ไขงานแล้ว' : 'เพิ่มงานแล้ว (' + res.assignmentId + ')', 'ok');
+          if (!a) T.active = res.assignmentId;
+          return refreshAssignments().then(function () { if (!a) setActive(res.assignmentId); renderManage(); });
+        }).catch(fail);
+      };
+    }
+
+    function manageAction(act, id) {
+      var a = T.list.filter(function (x) { return x.assignmentId === id; })[0];
+      if (!a) return;
+      if (act === 'edit') return openAssignmentForm(a);
+      if (act === 'status') { setActive(id); return H.go('status'); }
+      if (act === 'qr') { setActive(id); return H.go('print'); }
+      var closing = act === 'close';
+      H.confirm(closing ? 'ปิดงานนี้?' : 'เปิดรับงานนี้อีกครั้ง?',
+        closing ? '"' + a.title + '" จะไม่แสดงในรายการสแกน และสแกนไม่ได้จนกว่าจะเปิดใหม่ (ข้อมูลที่ส่งแล้วไม่หาย)' : '"' + a.title + '" จะกลับมาอยู่ในรายการสแกน',
+        closing ? 'ปิดงาน' : 'เปิดรับ', closing).then(function (ok) {
+        if (!ok) return;
+        H.api('teacher_closeAssignment', id, !closing).then(function () {
+          H.toast(closing ? 'ปิดงานแล้ว' : 'เปิดรับงานแล้ว', 'ok');
+          return refreshAssignments().then(renderManage);
+        }).catch(fail);
+      });
+    }
+
+    // ============================================================
+    // แท็บ: จัดการ — ผู้ดูแลระบบ (ADMIN)
+    // ============================================================
+    function reloadBoot() {
+      return H.api('teacher_bootstrap').then(function (b) {
+        var cur = H.state.classId;
+        H.state.boot = b;
+        H.fillSelect('#classSelect', b.classes, function (c) { return c.classId; }, function (c) { return c.name; },
+          b.classes.length ? '' : 'ยังไม่มีห้องที่ได้รับสิทธิ์');
+        if (!b.classes.some(function (c) { return c.classId === cur; })) cur = b.classes[0] ? b.classes[0].classId : '';
+        $('#classSelect').value = cur;
+        $('#schoolName').textContent = b.settings.schoolName || 'สำหรับครู';
+        var changed = cur !== H.state.classId;
+        H.state.classId = cur;
+        renderSubjects();
+        if (changed) document.dispatchEvent(new CustomEvent('hw:class', { detail: { classId: cur } }));
+      });
+    }
+
+    function loadAdmin() {
+      if (!isAdmin()) return;
+      renderSubjects();
+      H.api('admin_getSettings').then(function (s) {
+        $('#setSchoolName').value = s.schoolName || '';
+        $('#setLateGrace').value = s.lateGraceHours;
+        $('#setDueSoon').value = s.dueSoonDays;
+        $('#setAlert').value = s.alertThreshold;
+        $('#setAutoConfirm').checked = s.autoConfirm === 'true';
+        $('#setUsePin').checked = s.usePin === 'true';
+        $('#setAllowClosed').checked = s.allowClosedScan === 'true';
+      }).catch(fail);
+      loadTeachers();
+    }
+
+    function saveSettings() {
+      var nums = { lateGraceHours: val('#setLateGrace'), dueSoonDays: val('#setDueSoon'), alertThreshold: val('#setAlert') };
+      for (var k in nums) { if (!/^\d{1,4}$/.test(String(nums[k]).trim())) return H.toast('ตัวเลขในการตั้งค่าต้องเป็นจำนวนเต็ม 0 ขึ้นไป', 'warn'); }
+      var data = {
+        schoolName: val('#setSchoolName').trim(),
+        lateGraceHours: nums.lateGraceHours, dueSoonDays: nums.dueSoonDays, alertThreshold: nums.alertThreshold,
+        autoConfirm: $('#setAutoConfirm').checked, usePin: $('#setUsePin').checked, allowClosedScan: $('#setAllowClosed').checked
+      };
+      track($('#btnSaveSettings'), H.api('admin_saveSettings', data)).then(function () {
+        H.toast('บันทึกการตั้งค่าแล้ว (ค่าที่แก้อาจใช้เวลาไม่เกิน 5 นาทีในบางหน้าจอ)', 'ok', 4500);
+        return reloadBoot();
+      }).catch(fail);
+    }
+
+    // ---- นำเข้านักเรียน ----
+    function parseImport(text) {
+      var rows = [];
+      text.split(/\r?\n/).forEach(function (line, i) {
+        if (!line.trim()) return;
+        var c = (line.indexOf('\t') >= 0 ? line.split('\t') : line.split(',')).map(function (x) { return x.trim(); });
+        if (i === 0 && !/^\d+$/.test(c[0])) return; // ข้ามหัวตาราง
+        rows.push({ studentId: c[0], prefix: c[1] || '', firstName: c[2] || '', lastName: c[3] || '', classId: c[4] || '', number: c[5] || '' });
+      });
+      return rows;
+    }
+
+    function importStudents() {
+      var rows = parseImport(val('#importText'));
+      if (!rows.length) return H.toast('ยังไม่มีข้อมูลที่จะนำเข้า', 'warn');
+      track($('#btnImport'), H.api('admin_importStudents', rows)).then(function (r) {
+        $('#importResult').textContent = 'เพิ่ม ' + r.added + ' · อัปเดต ' + r.updated + (r.errorCount ? ' · ข้ามเพราะผิดรูปแบบ ' + r.errorCount : '');
+        if (r.errorCount) {
+          var m = H.modal('<h2 class="h2">บางแถวนำเข้าไม่ได้</h2><ul class="mt">' + r.errors.map(function (e) { return '<li>' + esc(e) + '</li>'; }).join('') +
+            '</ul><div class="modal-actions"><button class="btn primary" type="button" data-r="x">ปิด</button></div>');
+          m.root.querySelector('[data-r="x"]').onclick = m.close;
+        } else {
+          $('#importText').value = '';
+        }
+        H.toast('นำเข้าเสร็จแล้ว', 'ok');
+        return reloadBoot().then(refreshAssignments);
+      }).catch(fail);
+    }
+
+    // ---- ครูและสิทธิ์ ----
+    function loadTeachers() {
+      H.api('admin_getTeachers').then(function (list) {
+        T.teachers = list;
+        $('#teacherList').innerHTML = list.map(function (t) {
+          return '<li class="hw-item ' + (t.active ? 'st-submitted' : 'st-pending') + '" data-email="' + esc(t.email) + '">' +
+            '<div class="hw-icon" aria-hidden="true">' + esc((t.name || t.email).charAt(0)) + '</div>' +
+            '<div style="min-width:0"><div class="hw-title">' + esc(t.name || t.email) + '</div>' +
+            '<div class="hw-meta">' + esc(t.email) + '</div>' +
+            '<div class="hw-foot"><span class="badge ' + (t.role === 'ADMIN' ? 'st-excused' : 'st-pending') + '">' + (t.role === 'ADMIN' ? 'ผู้ดูแลระบบ' : 'ครู') + '</span>' +
+            (t.classIds ? '<span class="muted small">ห้อง: ' + esc(t.classIds) + '</span>' : '') +
+            (t.active ? '' : '<span class="badge st-overdue">ปิดใช้งาน</span>') +
+            (H.external && !t.hasPassword ? '<span class="badge st-pending">ยังไม่มีรหัสผ่าน</span>' : '') +
+            '<button class="btn ghost sm" type="button" data-act="edit">แก้ไข</button></div></div></li>';
+        }).join('');
+      }).catch(fail);
+    }
+
+    function openTeacherForm(t) {
+      var classes = (H.state.boot.classes || []).map(function (c) { return c.classId; }).join(', ');
+      var m = H.modal(
+        '<h2 class="h2">' + (t ? 'แก้ไขครู' : 'เพิ่มครู') + '</h2>' +
+        '<div class="field mt"><label for="tfEmail">อีเมล Google ของโรงเรียน</label><input class="input" id="tfEmail" type="email" autocomplete="off"></div>' +
+        '<div class="field"><label for="tfName">ชื่อที่แสดง</label><input class="input" id="tfName" type="text" maxlength="80"></div>' +
+        '<div class="field"><label for="tfRole">สิทธิ์</label><select class="input" id="tfRole"><option value="TEACHER">ครู</option><option value="ADMIN">ผู้ดูแลระบบ</option></select></div>' +
+        '<div class="field"><label for="tfClasses">ห้องที่ดูแล (คั่นด้วยจุลภาค)</label><input class="input" id="tfClasses" type="text" placeholder="เช่น M2-3, M2-4">' +
+        '<div class="hint">ห้องที่มีในระบบ: ' + esc(classes || 'ยังไม่มี') + '</div></div>' +
+        '<label class="check"><input type="checkbox" id="tfActive"> เปิดใช้งานบัญชี</label>' +
+        (t ? '<div class="mt"><button class="btn ghost sm" type="button" data-r="pw">🔑 ตั้ง/รีเซ็ตรหัสผ่านของครูคนนี้</button></div>' : '') +
+        '<div class="modal-actions"><button class="btn ghost" type="button" data-r="cancel">ยกเลิก</button><button class="btn primary" type="button" data-r="save">บันทึก</button></div>');
+      var r = m.root;
+      r.querySelector('#tfEmail').value = t ? t.email : '';
+      r.querySelector('#tfEmail').disabled = !!t;
+      r.querySelector('#tfName').value = t ? t.name : '';
+      r.querySelector('#tfRole').value = t ? t.role : 'TEACHER';
+      r.querySelector('#tfClasses').value = t ? t.classIds : H.state.classId || '';
+      r.querySelector('#tfActive').checked = t ? t.active : true;
+      var pwBtn = r.querySelector('[data-r="pw"]');
+      if (pwBtn) pwBtn.onclick = function () {
+        H.confirm('ตั้ง/รีเซ็ตรหัสผ่าน?', 'ระบบจะสร้างรหัสผ่านชั่วคราวใหม่ให้ ' + t.email + ' และรหัสเดิม (ถ้ามี) จะใช้ไม่ได้อีก', 'สร้างรหัสผ่าน').then(function (ok) {
+          if (!ok) return;
+          H.api('admin_setTeacherPassword', t.email, '').then(function (res) {
+            var m2 = H.modal('<h2 class="h2">รหัสผ่านชั่วคราว</h2>' +
+              '<p class="mt">อีเมล: <b>' + esc(t.email) + '</b></p>' +
+              '<p>รหัสผ่าน: <b style="font-size:1.4rem;letter-spacing:.08em">' + esc(res.password) + '</b></p>' +
+              '<p class="muted small mt">แสดงครั้งเดียว กรุณาจดและแจ้งครู ครูควรเปลี่ยนรหัสเองหลังเข้าสู่ระบบ (แตะที่ชื่อมุมขวาบน)</p>' +
+              '<div class="modal-actions"><button class="btn primary" type="button" data-r="x">ปิด</button></div>');
+            m2.root.querySelector('[data-r="x"]').onclick = m2.close;
+            loadTeachers();
+          }).catch(fail);
+        });
+      };
+      r.querySelector('[data-r="cancel"]').onclick = m.close;
+      r.querySelector('[data-r="save"]').onclick = function () {
+        var data = { email: r.querySelector('#tfEmail').value.trim(), name: r.querySelector('#tfName').value.trim(),
+          role: r.querySelector('#tfRole').value, classIds: r.querySelector('#tfClasses').value, active: r.querySelector('#tfActive').checked };
+        track(this, H.api('admin_saveTeacher', data)).then(function () { m.close(); H.toast('บันทึกแล้ว (สิทธิ์ใหม่มีผลภายใน 5 นาที)', 'ok', 4500); loadTeachers(); }).catch(fail);
+      };
+    }
+
+    // ---- วิชา ----
+    function renderSubjects() {
+      var subs = (H.state.boot && H.state.boot.subjects) || [];
+      $('#subjectEmpty').hidden = subs.length > 0;
+      $('#subjectList').innerHTML = subs.map(function (s) {
+        return '<li class="hw-item st-pending" data-id="' + esc(s.subjectId) + '"><div class="hw-icon" aria-hidden="true">📚</div>' +
+          '<div style="min-width:0"><div class="hw-title">' + esc(s.name) + '</div><div class="hw-meta">' + esc(s.subjectId) + (s.teacherEmail ? ' · ' + esc(s.teacherEmail) : '') + '</div>' +
+          '<div class="hw-foot"><button class="btn ghost sm" type="button" data-act="edit">แก้ไข</button></div></div></li>';
+      }).join('');
+    }
+
+    function openSubjectForm(s) {
+      var m = H.modal(
+        '<h2 class="h2">' + (s ? 'แก้ไขวิชา' : 'เพิ่มวิชา') + '</h2>' +
+        '<div class="field mt"><label for="sfId">รหัสวิชา</label><input class="input" id="sfId" type="text" maxlength="30" placeholder="เช่น SOC"></div>' +
+        '<div class="field"><label for="sfName">ชื่อวิชา</label><input class="input" id="sfName" type="text" maxlength="80"></div>' +
+        '<div class="field"><label for="sfTeacher">อีเมลครูผู้สอน (ไม่บังคับ)</label><input class="input" id="sfTeacher" type="email"></div>' +
+        '<div class="modal-actions"><button class="btn ghost" type="button" data-r="cancel">ยกเลิก</button><button class="btn primary" type="button" data-r="save">บันทึก</button></div>');
+      var r = m.root;
+      r.querySelector('#sfId').value = s ? s.subjectId : '';
+      r.querySelector('#sfId').disabled = !!s;
+      r.querySelector('#sfName').value = s ? s.name : '';
+      r.querySelector('#sfTeacher').value = s ? s.teacherEmail : '';
+      r.querySelector('[data-r="cancel"]').onclick = m.close;
+      r.querySelector('[data-r="save"]').onclick = function () {
+        var data = { subjectId: r.querySelector('#sfId').value.trim(), name: r.querySelector('#sfName').value.trim(), teacherEmail: r.querySelector('#sfTeacher').value.trim() };
+        track(this, H.api('admin_saveSubject', data)).then(function () { m.close(); H.toast('บันทึกวิชาแล้ว', 'ok'); return reloadBoot(); }).catch(fail);
+      };
+    }
+
+    // ---- สร้าง PIN ----
+    function generatePins() {
+      var cid = H.state.classId;
+      if (!cid) return H.toast('กรุณาเลือกห้องก่อน', 'warn');
+      H.confirm('สร้าง PIN ให้ห้อง ' + cid + '?', 'ระบบจะสร้าง PIN 4 หลักให้เฉพาะนักเรียนที่ยังไม่มี PIN (คนที่มีแล้วจะไม่ถูกเปลี่ยน) อย่าลืมเปิดตัวเลือก "นักเรียนต้องกรอก PIN" และบันทึกการตั้งค่า', 'สร้าง PIN').then(function (ok) {
+        if (!ok) return;
+        track($('#btnGenPins'), H.api('admin_generatePins', cid, false)).then(function (list) {
+          if (!list.length) return H.toast('นักเรียนห้องนี้มี PIN ครบทุกคนแล้ว', 'ok');
+          var m = H.modal('<h2 class="h2">PIN ใหม่ ' + list.length + ' คน</h2>' +
+            '<p class="muted small mt">บันทึกหรือถ่ายภาพหน้านี้ไว้แจกนักเรียน หน้านี้จะแสดงครั้งเดียว (ดูย้อนหลังได้ในคอลัมน์ pin ของชีต Students)</p>' +
+            '<div class="table-wrap mt"><table class="tbl" style="min-width:0"><thead><tr><th>ชื่อ</th><th>เลขประจำตัว</th><th>PIN</th></tr></thead><tbody>' +
+            list.map(function (p) { return '<tr><td>' + esc(p.name) + '</td><td>' + esc(p.studentId) + '</td><td><b>' + esc(p.pin) + '</b></td></tr>'; }).join('') +
+            '</tbody></table></div><div class="modal-actions"><button class="btn primary" type="button" data-r="x">ปิด</button></div>');
+          m.root.querySelector('[data-r="x"]').onclick = m.close;
+        }).catch(fail);
+      });
+    }
+
+    // ============================================================
+    // เชื่อมเหตุการณ์ (ผูกครั้งเดียว) + โหลดข้อมูลตามแท็บ
+    // ============================================================
+    function bind() {
+      if (T.bound) return;
+      T.bound = true;
+
+      ['#scanAssignment', '#statusAssignment', '#printAssignment'].forEach(function (s) {
+        $(s).addEventListener('change', function () { setActive(this.value); });
+      });
+      $('#statusSearch').addEventListener('input', function () { if (T.status) renderStatus(); });
+      $('#statusBody').addEventListener('click', function (e) {
+        var b = e.target.closest('button[data-sid]');
+        if (!b || !T.status) return;
+        var row = T.status.rows.filter(function (r) { return r.studentId === b.getAttribute('data-sid'); })[0];
+        if (row) openStatusModal(row);
+      });
+
+      $('#btnExportReport').addEventListener('click', exportReport);
+
+      $('#btnBuildQr').addEventListener('click', buildQr);
+      $('#btnPrintQr').addEventListener('click', function () { window.print(); });
+      ['#printLayout', '#printShowName', '#printShowNumber'].forEach(function (s) {
+        $(s).addEventListener('change', function () { if (T.qr) renderQr().catch(fail); });
+      });
+
+      $('#btnNewAssignment').addEventListener('click', function () { openAssignmentForm(null); });
+      $('#manageShowClosed').addEventListener('change', renderManage);
+      $('#manageList').addEventListener('click', function (e) {
+        var b = e.target.closest('button[data-act]');
+        var li = e.target.closest('li[data-id]');
+        if (b && li) manageAction(b.getAttribute('data-act'), li.getAttribute('data-id'));
+      });
+
+      $('#btnImport').addEventListener('click', importStudents);
+      $('#btnNewTeacher').addEventListener('click', function () { openTeacherForm(null); });
+      $('#teacherList').addEventListener('click', function (e) {
+        var b = e.target.closest('button[data-act="edit"]');
+        var li = e.target.closest('li[data-email]');
+        if (!b || !li) return;
+        var t = T.teachers.filter(function (x) { return x.email === li.getAttribute('data-email'); })[0];
+        if (t) openTeacherForm(t);
+      });
+      $('#btnNewSubject').addEventListener('click', function () { openSubjectForm(null); });
+      $('#subjectList').addEventListener('click', function (e) {
+        var b = e.target.closest('button[data-act="edit"]');
+        var li = e.target.closest('li[data-id]');
+        if (!b || !li) return;
+        var s = H.state.boot.subjects.filter(function (x) { return x.subjectId === li.getAttribute('data-id'); })[0];
+        if (s) openSubjectForm(s);
+      });
+      $('#btnSaveSettings').addEventListener('click', saveSettings);
+      $('#btnGenPins').addEventListener('click', generatePins);
+
+      document.addEventListener('hw:view', function (e) {
+        var v = e.detail.view;
+        if (v === 'status') loadStatus();
+        else if (v === 'missing') loadMissing();
+        else if (v === 'manage') { refreshAssignments().then(renderManage); loadAdmin(); }
+      });
+
+      document.addEventListener('hw:class', function () {
+        T.status = null; T.active = '';
+        resetPrint();
+        refreshAssignments().then(function () {
+          var v = H.state.view;
+          if (v === 'status') loadStatus();
+          else if (v === 'missing') loadMissing();
+          else if (v === 'manage') renderManage();
+        });
+      });
+    }
+
+    document.addEventListener('hw:ready', function (e) {
+      if (!e.detail || e.detail.page !== 'teacher') return;
+      bind();
+      resetPrint();
+      refreshAssignments();
+    });
+  })();
+
+  /* ============================================================
+     เฟส 6: โหมดสแกน QR — กล้อง / ถ่ายรูป / กรอกมือ + คิวออฟไลน์
+     ============================================================ */
+  (function scanFeature() {
+    if (CFG.page !== 'teacher') return;
+
+    var LIB = ['https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js',
+               'https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js'];
+    var QKEY = 'hw_queue_v1';
+    var esc = H.esc;
+    var S = H.scan = {
+      scanner: null, running: false, busy: false, pending: null,
+      lastPayload: '', lastAt: 0, count: 0, recent: [], queue: [], syncing: false,
+      audio: null, bound: false, idleHtml: '', warned: false
+    };
+
+    var ERR_LABEL = {
+      WRONG_ASSIGNMENT: 'ผิดงาน', WRONG_CLASS: 'ผิดห้อง', CLOSED: 'งานปิดรับแล้ว',
+      INVALID: 'QR ไม่ถูกต้อง', NOT_FOUND: 'ไม่พบข้อมูล', FORBIDDEN: 'ไม่มีสิทธิ์', ERROR: 'ผิดพลาด'
+    };
+
+    // ---------- ตัวช่วย ----------
+    function activeId() { return ($('#scanAssignment').value || ''); }
+    function activeTitle() {
+      var a = (H.teacher.list || []).filter(function (x) { return x.assignmentId === activeId(); })[0];
+      return a ? a.title : '';
+    }
+    function myEmail() { return H.state.boot ? H.state.boot.user.email : ''; }
+    function nowTime() {
+      return new Date().toLocaleTimeString('th-TH', { timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+    function bkkNow() { return new Date(Date.now() + 7 * 3600000).toISOString().slice(0, 19); } // เวลาไทยคงที่ UTC+7
+    function uid() { return 'q' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+    // ---------- เสียง + สั่น + แฟลชกรอบ ----------
+    function ensureAudio() {
+      try {
+        if (!S.audio) S.audio = new (window.AudioContext || window.webkitAudioContext)();
+        if (S.audio.state === 'suspended') S.audio.resume();
+      } catch (e) { S.audio = null; }
+    }
+    function beep(freq, ms, delay) {
+      if (!S.audio) return;
+      try {
+        var t0 = S.audio.currentTime + (delay || 0) / 1000;
+        var o = S.audio.createOscillator(), g = S.audio.createGain();
+        o.type = 'sine'; o.frequency.value = freq;
+        g.gain.setValueAtTime(0.0001, t0);
+        g.gain.exponentialRampToValueAtTime(0.25, t0 + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + ms / 1000);
+        o.connect(g); g.connect(S.audio.destination);
+        o.start(t0); o.stop(t0 + ms / 1000 + 0.02);
+      } catch (e) {}
+    }
+    function feedback(kind) {
+      var vp = $('#scannerViewport');
+      vp.classList.remove('flash-ok', 'flash-dup', 'flash-err');
+      vp.classList.add('flash-' + kind);
+      setTimeout(function () { vp.classList.remove('flash-' + kind); }, 800);
+      try {
+        if (kind === 'ok') { beep(880, 130); if (navigator.vibrate) navigator.vibrate(80); }
+        else if (kind === 'dup') { beep(520, 110); beep(520, 110, 170); if (navigator.vibrate) navigator.vibrate([60, 60, 60]); }
+        else { beep(210, 420); if (navigator.vibrate) navigator.vibrate(320); }
+      } catch (e) {}
+    }
+
+    // ---------- คิวออฟไลน์ (เก็บใน localStorage) ----------
+    function loadQueue() {
+      try { S.queue = JSON.parse(localStorage.getItem(QKEY) || '[]'); } catch (e) { S.queue = []; }
+      if (!Array.isArray(S.queue)) S.queue = [];
+    }
+    function saveQueue() {
+      try { localStorage.setItem(QKEY, JSON.stringify(S.queue.slice(-500))); }
+      catch (e) {
+        if (!S.warned) { S.warned = true; H.toast('เครื่องนี้ไม่ให้เก็บคิวในเบราว์เซอร์ คิวจะหายถ้าปิดหน้านี้', 'warn', 5000); }
+      }
+    }
+    function mine() { var em = myEmail(); return S.queue.filter(function (q) { return q.by === em; }); }
+    function updateQueueBadge() {
+      var n = mine().length, b = $('#queueBadge');
+      b.hidden = n === 0;
+      b.textContent = '📡 รอซิงก์ ' + n + ' รายการ (แตะเพื่อส่งตอนนี้)';
+    }
+    function updateCount() { $('#scanCount').textContent = 'บันทึกแล้ว ' + S.count + ' คน'; }
+
+    // ---------- การ์ดผลลัพธ์ ----------
+    function setCard(kind, badgeCls, badgeText, who, sub, msg, msgType) {
+      var card = $('#scanResult');
+      card.className = 'card scan-result ' + kind;
+      $('#scanResultBadge').className = 'badge ' + badgeCls;
+      $('#scanResultBadge').textContent = badgeText;
+      $('#scanResultTime').textContent = nowTime();
+      $('#scanResultWho').textContent = who;
+      $('#scanResultSub').textContent = sub;
+      var m = $('#scanResultMsg');
+      m.hidden = !msg;
+      m.className = 'alert ' + (msgType || 'info');
+      m.textContent = msg || '';
+      $('#btnConfirmScan').hidden = true;
+      $('#btnCancelScan').hidden = true;
+      card.hidden = false;
+    }
+
+    function subLine(r) {
+      if (!r.student) return '';
+      return (r.student.number ? 'เลขที่ ' + r.student.number + ' · ' : '') + (r.assignment ? r.assignment.title : '');
+    }
+
+    function addRecent(r) {
+      S.recent.unshift({ key: r.key, name: r.student.name, number: r.student.number, status: r.status, at: nowTime() });
+      S.recent = S.recent.slice(0, 10);
+    }
+
+    function renderRecent() {
+      $('#recentEmpty').hidden = S.recent.length > 0;
+      $('#recentScans').innerHTML = S.recent.map(function (x) {
+        var m = H.statusMeta(x.status);
+        return '<li class="hw-item ' + m.cls + '"><div class="hw-icon" aria-hidden="true">' + m.icon + '</div>' +
+          '<div style="min-width:0"><div class="hw-title">' + esc(x.name) + '</div>' +
+          '<div class="hw-meta">' + (x.number ? 'เลขที่ ' + esc(x.number) + ' · ' : '') + esc(x.at) + '</div>' +
+          '<div class="hw-foot">' + H.badge(x.status) +
+          '<button class="btn ghost sm" type="button" data-key="' + esc(x.key) + '">↩ ยกเลิก</button></div></div></li>';
+      }).join('');
+    }
+
+    function showResult(r) {
+      if (r.result === 'OK') {
+        var late = r.status === 'LATE';
+        setCard('ok', late ? 'st-late' : 'st-submitted', late ? '🕒 บันทึกแล้ว (ส่งช้า)' : '✅ บันทึกแล้ว',
+          r.student.name, subLine(r), '', '');
+        S.count++; addRecent(r); updateCount(); renderRecent();
+        feedback('ok');
+        if (mine().length) syncQueue();
+      } else if (r.result === 'DUPLICATE') {
+        setCard('dup', 'st-late', '⚠️ เคยบันทึกแล้ว', r.student.name, subLine(r), r.message, 'info');
+        feedback('dup');
+      } else if (r.result === 'QUEUED') {
+        setCard('dup', 'st-late', '📡 เก็บไว้ในเครื่องแล้ว', r.student.name, subLine(r), r.message, 'info');
+        feedback('ok');
+      } else {
+        var who = r.student ? r.student.name : (ERR_LABEL[r.result] || 'ผิดพลาด');
+        setCard('err', 'st-overdue', '❌ ' + (ERR_LABEL[r.result] || 'ผิดพลาด'), who, subLine(r), r.message, 'error');
+        feedback('err');
+      }
+    }
+
+    function showReady(r) {
+      setCard('', 'st-pending', 'รอยืนยัน', r.student.name, subLine(r),
+        r.status === 'LATE' ? 'เลยกำหนดส่งแล้ว จะบันทึกเป็น "ส่งช้า"' : '', 'info');
+      $('#btnConfirmScan').hidden = false;
+      $('#btnCancelScan').hidden = false;
+      try { beep(660, 90); if (navigator.vibrate) navigator.vibrate(40); } catch (e) {}
+    }
+
+    // ---------- ประมวลผล payload ----------
+    function offlineAccept(payload, aid) {
+      var p = payload.split('.');
+      if (p.length !== 4 || p[0] !== 'HW1') {
+        return showResult({ result: 'INVALID', message: 'QR Code ไม่ถูกต้อง (ไม่ใช่รูปแบบของระบบนี้)' });
+      }
+      if (p[1] !== aid) {
+        return showResult({ result: 'WRONG_ASSIGNMENT', message: 'QR นี้เป็นของงานอื่น ไม่ใช่งานที่กำลังเก็บ' });
+      }
+      var who = { name: 'รหัสนักเรียน ' + p[2], number: '' };
+      var asg = { title: activeTitle() };
+      if (mine().some(function (q) { return q.payload === payload; })) {
+        return showResult({ result: 'DUPLICATE', student: who, assignment: asg, message: 'QR นี้อยู่ในคิวรอซิงก์แล้ว' });
+      }
+      S.queue.push({ clientId: uid(), payload: payload, assignmentId: aid, scannedAt: bkkNow(), by: myEmail() });
+      saveQueue(); updateQueueBadge();
+      showResult({ result: 'QUEUED', student: who, assignment: asg,
+        message: 'ไม่มีอินเทอร์เน็ต จึงเก็บไว้ในเครื่องก่อน จะตรวจสอบและส่งเข้าระบบอัตโนมัติเมื่อกลับมาออนไลน์' });
+    }
+
+    function onNetErr(e, payload, aid) {
+      if (e.code === 'NETWORK') return offlineAccept(payload, aid);
+      showResult({ result: 'ERROR', message: e.message });
+    }
+
+    function processPayload(payload, aid) {
+      if (navigator.onLine === false) return Promise.resolve(offlineAccept(payload, aid));
+      var opts = { assignmentId: aid };
+      if (H.state.boot.settings.autoConfirm) {
+        return H.api('teacher_scan', payload, opts).then(showResult).catch(function (e) { onNetErr(e, payload, aid); });
+      }
+      return H.api('teacher_previewScan', payload, opts).then(function (r) {
+        if (r.result === 'READY') { S.pending = { payload: payload, aid: aid }; showReady(r); }
+        else showResult(r);
+      }).catch(function (e) { onNetErr(e, payload, aid); });
+    }
+
+    function handlePayload(raw) {
+      var payload = String(raw || '').trim();
+      if (!payload || S.busy || S.pending) return;
+      var now = Date.now();
+      if (payload === S.lastPayload && now - S.lastAt < 3000) return; // กล้องอ่านซ้ำรัวๆ
+      var aid = activeId();
+      if (!aid) { H.toast('กรุณาเลือกงานที่กำลังเก็บก่อน', 'warn'); return; }
+      S.lastPayload = payload; S.lastAt = now;
+      S.busy = true;
+      processPayload(payload, aid).then(function () {
+        setTimeout(function () { if (!S.pending) S.busy = false; }, 700);
+      });
+    }
+
+    function confirmPending() {
+      var p = S.pending;
+      if (!p) return;
+      S.pending = null;
+      $('#btnConfirmScan').hidden = true;
+      $('#btnCancelScan').hidden = true;
+      H.api('teacher_scan', p.payload, { assignmentId: p.aid }).then(showResult)
+        .catch(function (e) { onNetErr(e, p.payload, p.aid); })
+        .then(function () { setTimeout(function () { S.busy = false; }, 500); });
+    }
+
+    function cancelPending() {
+      S.pending = null; S.busy = false; S.lastPayload = '';
+      $('#scanResult').hidden = true;
+    }
+
+    // ---------- ยกเลิกรายการล่าสุด ----------
+    function undo(key) {
+      H.api('teacher_undo', key).then(function () {
+        S.recent = S.recent.filter(function (x) { return x.key !== key; });
+        S.count = Math.max(0, S.count - 1);
+        S.lastPayload = '';
+        updateCount(); renderRecent();
+        H.toast('ยกเลิกการบันทึกแล้ว', 'ok');
+      }).catch(function (e) { H.toast(e.message, 'err', 4500); });
+    }
+
+    // ---------- ซิงก์คิวออฟไลน์ ----------
+    function syncQueue() {
+      var batch = mine().slice(0, 200);
+      if (S.syncing || !batch.length || navigator.onLine === false) return Promise.resolve();
+      S.syncing = true;
+      var items = batch.map(function (q) {
+        return { clientId: q.clientId, payload: q.payload, assignmentId: q.assignmentId, scannedAt: q.scannedAt };
+      });
+      return H.api('teacher_syncQueue', items).then(function (results) {
+        var done = {}, ok = 0, dup = 0, bad = [];
+        results.forEach(function (r) {
+          done[r.clientId] = true;
+          if (r.result === 'OK') {
+            ok++;
+            if (r.assignment && r.assignment.assignmentId === activeId()) { S.count++; addRecent(r); }
+          } else if (r.result === 'DUPLICATE') dup++;
+          else bad.push(r);
+        });
+        S.queue = S.queue.filter(function (q) { return !done[q.clientId]; });
+        saveQueue(); updateQueueBadge(); updateCount(); renderRecent();
+        H.toast('ซิงก์แล้ว ' + results.length + ' รายการ (ใหม่ ' + ok + ' · ซ้ำ ' + dup + ' · มีปัญหา ' + bad.length + ')', bad.length ? 'warn' : 'ok', 4500);
+        if (bad.length) {
+          var m = H.modal('<h2 class="h2">บางรายการซิงก์ไม่สำเร็จ</h2><ul class="mt">' + bad.map(function (r) {
+            return '<li>' + esc((r.student ? r.student.name + ': ' : '') + (r.message || ERR_LABEL[r.result] || 'ผิดพลาด')) + '</li>';
+          }).join('') + '</ul><p class="muted small mt">รายการเหล่านี้ถูกนำออกจากคิวแล้ว กรุณาตรวจสอบและบันทึกด้วยมือที่แท็บ “ติดตามงาน”</p>' +
+            '<div class="modal-actions"><button class="btn primary" type="button" data-r="x">ปิด</button></div>');
+          m.root.querySelector('[data-r="x"]').onclick = m.close;
+        }
+      }).catch(function (e) {
+        if (e.code !== 'NETWORK' && e.code !== 'BUSY') H.toast(e.message, 'err', 5000);
+      }).then(function () { S.syncing = false; });
+    }
+
+    // ---------- กล้อง ----------
+    function setRunning(on) {
+      S.running = on;
+      $('#scannerIdle').hidden = on;
+      $('#btnScanStart').hidden = on;
+      $('#btnScanStop').hidden = !on;
+    }
+
+    function resetIdle() {
+      $('#scannerIdle').innerHTML = S.idleHtml;
+      $('#scannerIdle').hidden = false;
+    }
+
+    // ตรวจว่าเปิดผ่านเบราว์เซอร์ในแอป (LINE/Facebook ฯลฯ) ซึ่งมักบล็อกกล้อง
+    function inAppBrowser() {
+      var ua = navigator.userAgent || '';
+      if (/Line\//i.test(ua)) return 'LINE';
+      if (/FBAN|FBAV|FB_IAB/i.test(ua)) return 'Facebook';
+      if (/Instagram/i.test(ua)) return 'Instagram';
+      if (/MicroMessenger/i.test(ua)) return 'WeChat';
+      if (/; wv\)/i.test(ua)) return 'WebView ในแอป';
+      return '';
+    }
+
+    function showCameraMsg(msg, diag) {
+      $('#scannerIdle').innerHTML = '<div><div style="font-size:2rem">🚫</div><p class="mt">' + esc(msg) + '</p>' +
+        '<p class="small mt">ใช้ปุ่ม “ถ่ายรูป QR” หรือ “กรอกรหัสด้วยมือ” แทนได้</p>' +
+        '<p class="small mt" style="opacity:.7">รหัสสำหรับตรวจปัญหา: ' + esc(diag) + '</p></div>';
+      $('#scannerIdle').hidden = false;
+    }
+
+    function cameraError(err) {
+      var name = err && err.name ? err.name : 'Error';
+      var raw = String(err && err.message ? err.message : err);
+      var app = inAppBrowser();
+      var framed = true;
+      try { framed = window.top !== window.self; } catch (e) { framed = true; }
+      var diag = name + ' · ฝังในกรอบ: ' + (framed ? 'ใช่' : 'ไม่') + ' · HTTPS: ' + (window.isSecureContext ? 'ใช่' : 'ไม่');
+      S.lastCameraError = diag;
+
+      var msg;
+      if (name === 'NotFoundError' || /no camera|not found/i.test(raw)) {
+        msg = 'ไม่พบกล้องในอุปกรณ์นี้';
+      } else if (name === 'NotReadableError') {
+        msg = 'กล้องถูกใช้งานโดยแอปอื่นอยู่ ปิดแอปนั้นแล้วลองใหม่';
+      } else if (app) {
+        msg = 'ดูเหมือนเปิดจากในแอป ' + app + ' ซึ่งมักบล็อกกล้อง ให้กดเมนู ⋮ หรือไอคอนแชร์ แล้วเลือก “เปิดในเบราว์เซอร์” (Chrome หรือ Safari)';
+      } else if (framed) {
+        msg = 'หน้าเว็บของ Google Apps Script ไม่อนุญาตให้ใช้กล้องสดในหน้านี้ เป็นข้อจำกัดของ Google ไม่ใช่การตั้งค่าในเครื่องของคุณ';
+      } else {
+        msg = 'เบราว์เซอร์ไม่ให้ใช้กล้อง กรุณาตรวจสอบสิทธิ์กล้องของเว็บนี้ในการตั้งค่าเบราว์เซอร์';
+      }
+      showCameraMsg(msg, diag);
+      setRunning(false);
+      $('#scannerIdle').hidden = false;
+
+      // ทำให้ปุ่มทางเลือก (ถ่ายรูป QR) เด่นขึ้นเมื่อกล้องสดใช้ไม่ได้
+      var photo = document.querySelector('label[for="scanFile"]');
+      if (photo) { photo.classList.remove('ghost'); photo.classList.add('primary'); }
+    }
+
+    function startScan() {
+      if (!activeId()) return H.toast('กรุณาเลือกงานที่กำลังเก็บก่อน', 'warn');
+      ensureAudio();
+      var btn = $('#btnScanStart');
+      btn.disabled = true;
+      H.loadScript(LIB).then(function () {
+        if (!S.scanner) {
+          S.scanner = new Html5Qrcode('scannerReader', {
+            formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE], verbose: false
+          });
+        }
+        return S.scanner.start({ facingMode: 'environment' }, { fps: 10, aspectRatio: 1 },
+          function (text) { handlePayload(text); }, function () { /* ไม่พบ QR ในเฟรมนี้ ข้ามได้ */ });
+      }).then(function () {
+        setRunning(true);
+      }).catch(function (err) {
+        if (err && err.message && /ไลบรารี/.test(err.message)) { H.toast(err.message, 'err', 5000); resetIdle(); }
+        else cameraError(err);
+      }).then(function () { btn.disabled = false; });
+    }
+
+    function stopScan() {
+      if (!S.scanner || !S.running) { setRunning(false); return Promise.resolve(); }
+      return S.scanner.stop().then(function () {
+        try { S.scanner.clear(); } catch (e) {}
+      }).catch(function () {}).then(function () {
+        setRunning(false);
+        resetIdle();
+      });
+    }
+
+    // ---------- อ่าน QR จากรูปถ่าย ----------
+    // รูปจากกล้องมือถือความละเอียดสูง QR มักเล็กจนอ่านไม่ติด จึงย่อรูปหลายขนาดแล้วลองถอดรหัสทีละขนาด
+    var JSQR = ['https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js',
+                'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js'];
+
+    function loadImage(file) {
+      return new Promise(function (resolve, reject) {
+        var url = URL.createObjectURL(file);
+        var img = new Image();
+        img.onload = function () { resolve({ img: img, url: url }); };
+        img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('เปิดไฟล์รูปไม่ได้ ลองถ่ายใหม่อีกครั้ง')); };
+        img.src = url;
+      });
+    }
+
+    function drawScaled(img, maxSide) {
+      var w0 = img.naturalWidth || img.width, h0 = img.naturalHeight || img.height;
+      var scale = Math.min(1, maxSide / Math.max(w0, h0));
+      var w = Math.max(1, Math.round(w0 * scale)), h = Math.max(1, Math.round(h0 * scale));
+      var c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      var ctx = c.getContext('2d', { willReadFrequently: true });
+      ctx.drawImage(img, 0, 0, w, h);
+      return { ctx: ctx, w: w, h: h };
+    }
+
+    function jsqrAt(ctx, x, y, w, h) {
+      var d = ctx.getImageData(x, y, w, h);
+      var code = window.jsQR(d.data, w, h, { inversionAttempts: 'attemptBoth' });
+      return code && code.data ? code.data : null;
+    }
+
+    // 1) ลองทั้งภาพที่หลายขนาด  2) ถ้า QR เล็กในภาพ ลองตัดภาพเป็นช่องซ้อนกัน 3x3 ที่ความละเอียดสูง
+    function decodeWithJsQR(img) {
+      var sides = [1600, 1000, 2400, 700], i, t;
+      for (i = 0; i < sides.length; i++) {
+        var f = drawScaled(img, sides[i]);
+        t = jsqrAt(f.ctx, 0, 0, f.w, f.h);
+        if (t) return t;
+      }
+      var big = drawScaled(img, 2400);
+      var tw = Math.round(big.w / 2), th = Math.round(big.h / 2);
+      for (var r = 0; r < 3; r++) {
+        for (var c = 0; c < 3; c++) {
+          var x = Math.round((big.w - tw) * c / 2), y = Math.round((big.h - th) * r / 2);
+          t = jsqrAt(big.ctx, x, y, tw, th);
+          if (t) return t;
+        }
+      }
+      return null;
+    }
+
+    // ตัวอ่านสำรอง (แยกจากตัวสแกนกล้อง จึงไม่ติดสถานะค้างของกล้อง)
+    function decodeWithHtml5(file) {
+      var host = document.getElementById('scanFileHost');
+      if (!host) {
+        host = document.createElement('div');
+        host.id = 'scanFileHost';
+        host.style.display = 'none';
+        document.body.appendChild(host);
+      }
+      var q = new Html5Qrcode('scanFileHost', { formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE], verbose: false });
+      return q.scanFile(file, false).then(function (t) { try { q.clear(); } catch (e) {} return t; });
+    }
+
+    function scanFromPhoto(file) {
+      if (!file) return;
+      if (!activeId()) return H.toast('กรุณาเลือกงานที่กำลังเก็บก่อน', 'warn');
+      ensureAudio();
+      var loaded = null;
+      H.toast('กำลังอ่าน QR จากรูป...', '', 2500);
+      stopScan().then(function () {
+        return Promise.all([
+          H.loadScript(JSQR).catch(function () { return null; }),
+          H.loadScript(LIB).catch(function () { return null; })
+        ]);
+      }).then(function () {
+        if (!window.jsQR && !window.Html5Qrcode) throw new Error('โหลดไลบรารีอ่าน QR ไม่สำเร็จ ตรวจสอบอินเทอร์เน็ตแล้วลองใหม่');
+        return loadImage(file);
+      }).then(function (L) {
+        loaded = L;
+        var text = window.jsQR ? decodeWithJsQR(L.img) : null;
+        if (text) return text;
+        return window.Html5Qrcode ? decodeWithHtml5(file) : null;
+      }).then(function (text) {
+        if (!text) throw new Error('NO_QR');
+        S.lastPayload = '';
+        handlePayload(text);
+      }).catch(function (err) {
+        var m = err && err.message ? err.message : '';
+        if (window.console) console.warn('photo scan:', err);
+        if (/ไลบรารี|เปิดไฟล์/.test(m)) H.toast(m, 'err', 5000);
+        else H.toast('อ่าน QR จากรูปไม่ได้ ลองถ่ายใหม่ให้เห็น QR เต็มรูป ชัด ไม่เอียง และแสงพอ', 'err', 4500);
+      }).then(function () { if (loaded) URL.revokeObjectURL(loaded.url); });
+    }
+
+    // ---------- รีเซ็ตเซสชัน (เมื่อเปลี่ยนงาน/ห้อง) ----------
+    function resetSession() {
+      S.count = 0; S.recent = []; S.pending = null; S.busy = false; S.lastPayload = '';
+      $('#scanResult').hidden = true;
+      updateCount(); renderRecent();
+    }
+
+    // ---------- เชื่อมเหตุการณ์ ----------
+    function bind() {
+      if (S.bound) return;
+      S.bound = true;
+      S.idleHtml = $('#scannerIdle').innerHTML;
+
+      $('#btnScanStart').addEventListener('click', startScan);
+      $('#btnScanStop').addEventListener('click', function () { stopScan(); });
+      $('#scanFile').addEventListener('change', function () {
+        var f = this.files && this.files[0];
+        this.value = '';
+        scanFromPhoto(f);
+      });
+      $('#btnManualScan').addEventListener('click', function () {
+        ensureAudio();
+        var v = $('#manualPayload').value;
+        S.lastPayload = '';
+        handlePayload(v);
+        $('#manualPayload').value = '';
+      });
+      $('#manualPayload').addEventListener('keydown', function (e) { if (e.key === 'Enter') $('#btnManualScan').click(); });
+      $('#btnConfirmScan').addEventListener('click', confirmPending);
+      $('#btnCancelScan').addEventListener('click', cancelPending);
+      $('#recentScans').addEventListener('click', function (e) {
+        var b = e.target.closest('button[data-key]');
+        if (b) undo(b.getAttribute('data-key'));
+      });
+      $('#queueBadge').addEventListener('click', syncQueue);
+
+      document.addEventListener('hw:assignment', resetSession);
+      document.addEventListener('hw:class', function () { stopScan(); resetSession(); });
+      document.addEventListener('hw:view', function (e) { if (e.detail.view !== 'scan' && S.running) stopScan(); });
+      document.addEventListener('hw:online', syncQueue);
+      document.addEventListener('visibilitychange', function () { if (document.hidden && S.running) stopScan(); });
+      window.addEventListener('pagehide', function () { if (S.running) stopScan(); });
+      setInterval(syncQueue, 30000);
+    }
+
+    document.addEventListener('hw:ready', function (e) {
+      if (!e.detail || e.detail.page !== 'teacher') return;
+      bind();
+      loadQueue();
+      updateQueueBadge(); updateCount(); renderRecent();
+      syncQueue();
+    });
+  })();
+
+  /* ============================================================
+     เครื่องมือผู้ดูแลระบบ: ประวัติการใช้งาน + โหลดข้อมูลชีตใหม่
+     ============================================================ */
+  (function adminTools() {
+    if (CFG.page !== 'teacher') return;
+    var esc = H.esc;
+    var bound = false;
+
+    function fail(e) { H.toast(e.message, 'err', 4500); }
+    function track(btn, p) {
+      if (btn) btn.disabled = true;
+      var done = function () { if (btn) btn.disabled = false; };
+      p.then(done, done);
+      return p;
+    }
+
+    var ACTION = {
+      SCAN: 'สแกนรับงาน', UNDO: 'ยกเลิกการบันทึก', SET_SUBMITTED: 'ตั้งเป็นส่งแล้ว', SET_LATE: 'ตั้งเป็นส่งช้า',
+      SET_EXCUSED: 'ตั้งเป็นยกเว้น', SET_NONE: 'ตั้งเป็นยังไม่ส่ง', ASSIGNMENT_NEW: 'เพิ่มงาน', ASSIGNMENT_EDIT: 'แก้ไขงาน',
+      ASSIGNMENT_CLOSE: 'ปิดงาน', ASSIGNMENT_REOPEN: 'เปิดงานอีกครั้ง', QR_BATCH: 'สร้าง QR', EXPORT: 'ส่งออกรายงาน',
+      IMPORT_STUDENTS: 'นำเข้านักเรียน', GENERATE_PINS: 'สร้าง PIN', TEACHER_NEW: 'เพิ่มครู', TEACHER_EDIT: 'แก้ไขครู',
+      CLASS_SAVE: 'บันทึกห้อง', SUBJECT_SAVE: 'บันทึกวิชา', SETTINGS_SAVE: 'บันทึกการตั้งค่า', REFRESH_DATA: 'โหลดข้อมูลชีตใหม่',
+      LOGIN: 'เข้าสู่ระบบ', PASSWORD_SET: 'ตั้งรหัสผ่านให้ครู', PASSWORD_CHANGE: 'เปลี่ยนรหัสผ่าน'
+    };
+
+    function openAudit() {
+      track($('#btnAudit'), H.api('admin_getAuditLog', 200)).then(function (rows) {
+        var m = H.modal(
+          '<h2 class="h2">ประวัติการใช้งานล่าสุด</h2>' +
+          '<div class="field mt"><input class="input" id="auSearch" type="search" placeholder="ค้นหา ชื่อผู้ใช้ การกระทำ หรือรหัส" aria-label="ค้นหาประวัติ"></div>' +
+          '<div class="table-wrap"><table class="tbl" style="min-width:520px"><thead><tr><th>เวลา</th><th>ผู้ทำ</th><th>การกระทำ</th><th>รายละเอียด</th></tr></thead><tbody id="auBody"></tbody></table></div>' +
+          '<div class="modal-actions"><button class="btn primary" type="button" data-r="x">ปิด</button></div>');
+        var r = m.root;
+        r.querySelector('[data-r="x"]').onclick = m.close;
+
+        function draw() {
+          var q = r.querySelector('#auSearch').value.trim().toLowerCase();
+          var list = rows.filter(function (x) {
+            return !q || (x.actor + ' ' + (ACTION[x.action] || x.action) + ' ' + x.target + ' ' + x.detail).toLowerCase().indexOf(q) >= 0;
+          });
+          r.querySelector('#auBody').innerHTML = list.length ? list.map(function (x) {
+            return '<tr><td class="small">' + esc(H.fmtDateTime(x.timestamp)) + '</td>' +
+              '<td class="small">' + esc(x.actor) + '</td>' +
+              '<td>' + esc(ACTION[x.action] || x.action) + '</td>' +
+              '<td class="small">' + esc(x.target) + (x.detail ? ' · ' + esc(x.detail) : '') + '</td></tr>';
+          }).join('') : '<tr><td colspan="4" class="center muted">ไม่พบรายการ</td></tr>';
+        }
+        r.querySelector('#auSearch').addEventListener('input', draw);
+        draw();
+      }).catch(fail);
+    }
+
+    function bind() {
+      if (bound) return;
+      bound = true;
+      $('#btnAudit').addEventListener('click', openAudit);
+      $('#btnRefreshData').addEventListener('click', function () {
+        track(this, H.api('admin_refreshData')).then(function () {
+          H.toast('โหลดข้อมูลจากชีตใหม่แล้ว กำลังรีเฟรชหน้า...', 'ok');
+          setTimeout(function () { window.location.reload(); }, 700);
+        }).catch(fail);
+      });
+    }
+
+    document.addEventListener('hw:ready', function (e) {
+      if (e.detail && e.detail.page === 'teacher') bind();
+    });
+  })();
+
+  /* ============================================================
+     ตารางงานทั้งห้อง: นักเรียน x งาน
+     ============================================================ */
+  (function matrixFeature() {
+    if (CFG.page !== 'teacher') return;
+    var esc = H.esc;
+    var M = H.matrix = { data: null, bound: false, seq: 0 };
+    var MONTHS_S = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+    var DONE = { SUBMITTED: 1, LATE: 1 };
+
+    function fail(e) { H.toast(e.message, 'err', 4500); }
+    function shortDate(iso) {
+      var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ''));
+      return m ? parseInt(m[3], 10) + ' ' + MONTHS_S[parseInt(m[2], 10) - 1] : '';
+    }
+    function show(id, on) { var el = $(id); if (el) el.hidden = !on; }
+    function shortName(n) { return String(n || '').replace(/^(เด็กชาย|เด็กหญิง|ด\.ช\.|ด\.ญ\.|นางสาว|นาย|นาง)\s*/, ''); }
+
+    function load() {
+      var cid = H.state.classId;
+      var seq = ++M.seq;
+      show('#matrixError', false);
+      if (!cid) {
+        show('#matrixWrap', false); show('#matrixSkeleton', false);
+        $('#matrixEmptyMsg').textContent = 'ยังไม่ได้เลือกห้อง';
+        show('#matrixEmpty', true);
+        return;
+      }
+      show('#matrixEmpty', false); show('#matrixWrap', false); show('#matrixSkeleton', true);
+      H.api('teacher_getClassMatrix', cid, $('#matrixShowClosed').checked).then(function (d) {
+        if (seq !== M.seq) return;
+        M.data = d;
+        show('#matrixSkeleton', false);
+        render();
+      }).catch(function (e) {
+        if (seq !== M.seq) return;
+        show('#matrixSkeleton', false);
+        $('#matrixErrorMsg').textContent = e.message;
+        show('#matrixError', true);
+      });
+    }
+
+    function render() {
+      var d = M.data;
+      if (!d) return;
+
+      // สรุปรายงาน (คอลัมน์) และรายคน (แถว) โดยไม่นับ "ยกเว้น" เป็นงานที่ต้องส่ง
+      var colDone = d.assignments.map(function () { return 0; });
+      var colTotal = d.assignments.map(function () { return 0; });
+      var rows = d.students.map(function (st) {
+        var done = 0, total = 0, overdue = 0, missing = 0;
+        st.cells.forEach(function (c, i) {
+          if (c.s === 'EXCUSED') return;
+          total++; colTotal[i]++;
+          if (DONE[c.s]) { done++; colDone[i]++; }
+          else { missing++; if (c.s === 'OVERDUE') overdue++; }
+        });
+        return { st: st, done: done, total: total, overdue: overdue, missing: missing };
+      });
+
+      var q = $('#matrixSearch').value.trim().toLowerCase();
+      var f = $('#matrixFilter').value;
+      var shown = rows.filter(function (r) {
+        if (q && r.st.name.toLowerCase().indexOf(q) < 0 && r.st.studentId.indexOf(q) < 0) return false;
+        if (f === 'missing') return r.missing > 0;
+        if (f === 'overdue') return r.overdue > 0;
+        return true;
+      });
+
+      var info = 'นักเรียน ' + shown.length + (shown.length !== rows.length ? ' จาก ' + rows.length : '') + ' คน · งาน ' + d.assignments.length + ' ชิ้น';
+      if (d.truncated) info += ' (แสดง ' + d.assignments.length + ' งานล่าสุดจากทั้งหมด ' + d.totalAssignments + ' งาน ปิดงานเก่าเพื่อให้ตารางสั้นลง)';
+      $('#matrixInfo').textContent = info;
+
+      if (!d.assignments.length || !d.students.length) {
+        show('#matrixWrap', false);
+        $('#matrixEmptyMsg').textContent = !d.students.length ? 'ยังไม่มีนักเรียนในห้องนี้' : 'ยังไม่มีงานในห้องนี้ (ลองติ๊ก "รวมงานที่ปิดแล้ว")';
+        show('#matrixEmpty', true);
+        return;
+      }
+      show('#matrixEmpty', false);
+
+      var head = '<thead><tr><th class="m-name" scope="col">นักเรียน</th><th scope="col">ส่ง</th><th scope="col">ค้าง</th>' +
+        d.assignments.map(function (a, i) {
+          return '<th class="m-asg" scope="col" title="' + esc(a.title + (a.subjectName ? ' · ' + a.subjectName : '') + ' · กำหนดส่ง ' + H.fmtDate(a.dueDate)) + '">' +
+            '<div class="m-t">' + (a.status === 'CLOSED' ? '🔒 ' : '') + esc(a.title) + '</div>' +
+            '<div class="m-d">' + esc(shortDate(a.dueDate)) + '</div>' +
+            '<div class="m-c">' + colDone[i] + '/' + colTotal[i] + '</div></th>';
+        }).join('') + '</tr></thead>';
+
+      var body = '<tbody>' + (shown.length ? shown.map(function (r) {
+        var cells = r.st.cells.map(function (c, i) {
+          var meta = H.statusMeta(c.s);
+          var tip = r.st.name + ' · ' + d.assignments[i].title + ' · ' + meta.label +
+            (c.at && DONE[c.s] ? ' (' + H.fmtDateTime(c.at) + ')' : '') + (c.score !== '' ? ' · คะแนน ' + c.score : '') + (c.note ? ' · ' + c.note : '');
+          return '<td class="m-cell ' + meta.cls + '" data-sid="' + esc(r.st.studentId) + '" data-i="' + i + '" role="button" tabindex="0" title="' + esc(tip) + '" aria-label="' + esc(tip) + '">' + meta.icon + '</td>';
+        }).join('');
+        return '<tr><th class="m-name" scope="row" title="' + esc(r.st.name) + '"><span class="m-no">' + esc(r.st.number || '') + '</span> ' + esc(shortName(r.st.name)) + '</th>' +
+          '<td class="m-sum">' + r.done + '/' + r.total + '</td>' +
+          '<td class="m-sum m-over' + (r.overdue ? ' has' : '') + '">' + r.overdue + '</td>' + cells + '</tr>';
+      }).join('') : '<tr><td colspan="' + (3 + d.assignments.length) + '" class="center muted">ไม่พบนักเรียนที่ตรงกับตัวกรอง</td></tr>') + '</tbody>';
+
+      $('#matrixTable').innerHTML = head + body;
+      show('#matrixWrap', true);
+    }
+
+    function openCell(td) {
+      var d = M.data;
+      if (!d) return;
+      var sid = td.getAttribute('data-sid'), i = parseInt(td.getAttribute('data-i'), 10);
+      var st = d.students.filter(function (x) { return x.studentId === sid; })[0];
+      var a = d.assignments[i];
+      if (!st || !a || !H.teacher || !H.teacher.openStatusModal) return;
+      var c = st.cells[i];
+      H.teacher.openStatusModal(
+        { studentId: st.studentId, name: st.name, number: st.number, status: c.s, score: c.score, note: c.note },
+        { assignmentId: a.assignmentId, title: a.title, maxScore: a.maxScore });
+    }
+
+    function exportSheet() {
+      var cid = H.state.classId;
+      if (!cid) return H.toast('กรุณาเลือกห้องก่อน', 'warn');
+      var btn = $('#btnMatrixExport');
+      btn.disabled = true;
+      H.api('teacher_exportReport', cid).then(function (r) {
+        var m = H.modal('<h2 class="h2">สร้างรายงานแล้ว ✅</h2>' +
+          '<p class="muted mt">รายงานสรุปการส่งงานของห้อง ' + esc(cid) + ' ถูกแชร์ให้บัญชีของคุณแบบดูอย่างเดียว</p>' +
+          '<div class="modal-actions"><button class="btn ghost" type="button" data-r="x">ปิด</button>' +
+          '<a class="btn primary" href="' + esc(r.url) + '" target="_blank" rel="noopener">เปิดรายงาน</a></div>');
+        m.root.querySelector('[data-r="x"]').onclick = m.close;
+      }).catch(fail).then(function () { btn.disabled = false; });
+    }
+
+    function bind() {
+      if (M.bound) return;
+      M.bound = true;
+      $('#matrixSearch').addEventListener('input', render);
+      $('#matrixFilter').addEventListener('change', render);
+      $('#matrixShowClosed').addEventListener('change', load);
+      $('#btnMatrixRefresh').addEventListener('click', load);
+      $('#btnMatrixExport').addEventListener('click', exportSheet);
+      var table = $('#matrixTable');
+      table.addEventListener('click', function (e) {
+        var td = e.target.closest('td.m-cell');
+        if (td) openCell(td);
+      });
+      table.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        var td = e.target.closest && e.target.closest('td.m-cell');
+        if (td) { e.preventDefault(); openCell(td); }
+      });
+      document.addEventListener('hw:view', function (e) { if (e.detail.view === 'matrix') load(); });
+      document.addEventListener('hw:class', function () { M.data = null; if (H.state.view === 'matrix') load(); });
+      document.addEventListener('hw:status-changed', function () { if (H.state.view === 'matrix') load(); });
+    }
+
+    document.addEventListener('hw:ready', function (e) {
+      if (e.detail && e.detail.page === 'teacher') bind();
+    });
+  })();
+
+  /* ===== เฟส 8: README.md (วิธี Deploy) + TEST_CASES.md — ไม่ต้องแก้ไฟล์นี้เพิ่ม ===== */
+})();
+</script>
+
+</body>
+</html>
