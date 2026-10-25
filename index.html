@@ -140,7 +140,7 @@ body[data-page="teacher"] .container { max-width: 980px; padding-bottom: calc(96
   padding: 18px; box-shadow: var(--shadow); margin-bottom: 14px;
 }
 .card.flat { box-shadow: none; }
-.card-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.card-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
 
 /* ---------- ฟอร์ม ---------- */
 .field { margin-bottom: 14px; }
@@ -356,6 +356,50 @@ table.matrix { border-collapse: separate; border-spacing: 0; min-width: 100%; fo
 .matrix td.m-cell:hover { filter: brightness(1.25); outline: 2px solid var(--accent); outline-offset: -2px; }
 .matrix tbody tr:last-child th, .matrix tbody tr:last-child td { border-bottom: 0; }
 
+/* ---------- รายงาน PDF ตารางงานทั้งห้อง (โทนสว่างเสมอ เพื่อพิมพ์) ---------- */
+#reportPrint { display: none; }
+.rp-prev { position: relative; overflow: hidden; border-radius: 10px; background: #8a93a6; padding: 0; }
+.rp-paper { background: #fff; box-shadow: 0 2px 14px rgba(0, 0, 0, .35); transform-origin: 0 0; box-sizing: border-box; }
+.rp-page { margin: 0 auto; overflow: hidden; background: #fff; }
+.rp-inner { box-sizing: border-box; background: #fff; color: #1f2d4a; font-family: 'Sarabun', 'Noto Sans Thai', system-ui, sans-serif; font-size: 12px; line-height: 1.35; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.rp-inner * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.rp-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; padding-bottom: 8px; border-bottom: 3px solid #b9831a; }
+.rp-school { font-size: 11px; color: #6b7a99; font-weight: 600; }
+.rp-title { font-family: 'Mitr', 'Sarabun', sans-serif; font-size: 22px; font-weight: 500; line-height: 1.2; color: #1f2d4a; margin: 2px 0 0; }
+.rp-sub { font-size: 13px; color: #44547a; margin-top: 2px; }
+.rp-meta { text-align: right; font-size: 11px; color: #6b7a99; line-height: 1.5; white-space: nowrap; }
+.rp-tiles { display: flex; gap: 8px; margin: 10px 0; }
+.rp-tile { flex: 1; border: 1px solid #d9dfeb; border-left: 4px solid #b9831a; border-radius: 8px; padding: 5px 10px; background: #f6f8fc; }
+.rp-tile b { display: block; font-family: 'Mitr', 'Sarabun', sans-serif; font-weight: 500; font-size: 18px; line-height: 1.15; color: #1f2d4a; }
+.rp-tile span { font-size: 10.5px; color: #6b7a99; }
+.rp-table { border-collapse: collapse; table-layout: fixed; }
+.rp-table th, .rp-table td { border: 1px solid #d9dfeb; padding: 3px 4px; text-align: center; vertical-align: middle; color: #1f2d4a; }
+.rp-table thead th { background: #1f2d4a; color: #fff; font-weight: 600; font-size: 10.5px; border-color: #1f2d4a; vertical-align: bottom; }
+.rp-table thead th.rp-nm { text-align: left; }
+.rp-at { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; word-break: break-word; line-height: 1.25; }
+.rp-table.rp-dense .rp-at { -webkit-line-clamp: 4; }
+.rp-ad { font-weight: 400; font-size: 9.5px; color: #c8d1e6; margin-top: 2px; }
+.rp-table td.rp-nm { text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rp-table td.rp-no { color: #6b7a99; }
+.rp-table tbody tr:nth-child(even) td { background: #f6f8fc; }
+.rp-table td.rp-tot { font-weight: 700; }
+.rp-bar { height: 4px; background: #e3e8f2; border-radius: 3px; margin-top: 2px; overflow: hidden; }
+.rp-bar i { display: block; height: 100%; background: #1f9d63; }
+.rp-table tfoot td { background: #eef1f8; font-weight: 700; font-size: 10.5px; border-top: 2px solid #1f2d4a; }
+.rp-table.rp-dense th, .rp-table.rp-dense td { padding: 2px 3px; }
+.rp-cb { display: block; margin: 0 auto; }
+.rp-ex { color: #9aa5b8; font-weight: 700; }
+.rp-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px; font-size: 10.5px; color: #44547a; align-items: center; }
+.rp-legend span { display: inline-flex; align-items: center; gap: 4px; }
+.rp-foot { margin-top: 6px; font-size: 10px; color: #8a97b3; display: flex; justify-content: space-between; gap: 12px; }
+
+@media print {
+  body.printing-report { background: #fff !important; }
+  body.printing-report > *:not(#reportPrint) { display: none !important; }
+  body.printing-report #reportPrint { display: block !important; }
+  body.printing-report #reportPrint, body.printing-report #reportPrint * { visibility: visible !important; }
+}
+
 /* ---------- ลดการเคลื่อนไหวตามระบบ ---------- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
@@ -525,6 +569,7 @@ table.matrix { border-collapse: separate; border-spacing: 0; min-width: 100%; fo
       <div class="card-title" style="margin-bottom:10px">
         <h2 class="h2">ตารางงานทั้งห้อง</h2>
         <div class="row" style="flex-wrap:nowrap">
+          <button class="btn primary sm" id="btnMatrixPdf" type="button" title="ส่งออกรายงานหน้าเดียวเป็น PDF">📄 PDF</button>
           <button class="icon-btn" id="btnMatrixRefresh" type="button" aria-label="รีเฟรช" title="รีเฟรช">↻</button>
           <button class="icon-btn" id="btnMatrixExport" type="button" aria-label="ส่งออกเป็น Google Sheet" title="ส่งออกเป็น Google Sheet">📤</button>
         </div>
@@ -712,7 +757,7 @@ table.matrix { border-collapse: separate; border-spacing: 0; min-width: 100%; fo
      ตั้งค่าตรงนี้ครั้งเดียว: วางลิงก์เว็บแอป Apps Script (ที่ลงท้ายด้วย /exec)
      ต้องเป็น deployment ที่ตั้ง Who has access = Anyone
      ============================================================ */
-  var API_URL = 'https://script.google.com/macros/s/AKfycbznd6G1YYkAYR34woXQGELCPb79iyR_GLDcH9GiQBiIDgKUXiX59sLUWYXHnNkIVE97Ww/exec';
+  var API_URL = 'PUT_YOUR_WEB_APP_URL_HERE';
   window.APP_CONFIG = { page: 'teacher', appUrl: '', apiUrl: API_URL };
 </script>
 <script>
@@ -2716,6 +2761,244 @@ table.matrix { border-collapse: separate; border-spacing: 0; min-width: 100%; fo
 
     document.addEventListener('hw:ready', function (e) {
       if (e.detail && e.detail.page === 'teacher') bind();
+    });
+  })();
+
+  /* ============================================================
+     รายงานหน้าเดียวของตารางห้อง: พิมพ์ / บันทึกเป็น PDF จากเบราว์เซอร์
+     แถว = นักเรียน, คอลัมน์ = งาน, ช่อง = กล่องติ๊ก (ส่งแล้ว ✓ / ยังไม่ส่ง ว่าง)
+     ============================================================ */
+  (function reportFeature() {
+    if (CFG.page !== 'teacher') return;
+    var esc = H.esc;
+    var PXMM = 96 / 25.4, MARGIN = 8;            // 96 px ต่อนิ้ว, ขอบกระดาษ 8 มม.
+    var MONTHS_S = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+    var R = H.report = { bound: false, model: null, lay: null };
+
+    function shortDate(iso) {
+      var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ''));
+      return m ? parseInt(m[3], 10) + ' ' + MONTHS_S[parseInt(m[2], 10) - 1] : '';
+    }
+    function bkkNowIso() { return new Date(Date.now() + 7 * 3600000).toISOString().slice(0, 19); }
+
+    // ---------- กล่องติ๊ก (SVG: พิมพ์ได้คมและสีไม่หายแม้ปิด Background graphics) ----------
+    function box(kind, size) {
+      var sz = size || 15;
+      if (kind === 'ok' || kind === 'late') {
+        return '<svg class="rp-cb" viewBox="0 0 16 16" width="' + sz + '" height="' + sz + '"><rect x="0.5" y="0.5" width="15" height="15" rx="3.5" fill="' + (kind === 'late' ? '#e08a00' : '#1f9d63') + '"/>' +
+          '<path d="M4 8.4l2.7 2.7 5.3-5.7" fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      }
+      if (kind === 'excused') return '<span class="rp-ex">–</span>';
+      return '<svg class="rp-cb" viewBox="0 0 16 16" width="' + sz + '" height="' + sz + '"><rect x="1" y="1" width="14" height="14" rx="3" fill="#fff" stroke="' +
+        (kind === 'over' ? '#d64545' : '#9aa5b8') + '" stroke-width="1.6"/></svg>';
+    }
+    function kindOf(s) {
+      return s === 'SUBMITTED' ? 'ok' : s === 'LATE' ? 'late' : s === 'EXCUSED' ? 'excused' : s === 'OVERDUE' ? 'over' : 'empty';
+    }
+
+    // ---------- โมเดลข้อมูลรายงาน ----------
+    function buildModel(data, o) {
+      var take = o.limit > 0 ? Math.min(o.limit, data.assignments.length) : data.assignments.length;
+      var order = [];
+      for (var i = take - 1; i >= 0; i--) order.push(i);   // เก่า → ใหม่ (ซ้าย → ขวา)
+      var cols = order.map(function (k) { return data.assignments[k]; });
+      var colDone = cols.map(function () { return 0; }), colTotal = cols.map(function () { return 0; });
+      var cellsDone = 0, cellsTotal = 0, full = 0;
+
+      var rows = data.students.map(function (st) {
+        var done = 0, total = 0, overdue = 0;
+        var cells = order.map(function (k, j) {
+          var s = st.cells[k].s;
+          if (s !== 'EXCUSED') {
+            total++; colTotal[j]++;
+            if (s === 'SUBMITTED' || s === 'LATE') { done++; colDone[j]++; }
+            else if (s === 'OVERDUE') overdue++;
+          }
+          return s;
+        });
+        cellsDone += done; cellsTotal += total;
+        if (total > 0 && done === total) full++;
+        return { number: st.number, name: st.name, cells: cells, done: done, total: total, overdue: overdue };
+      });
+
+      return {
+        className: data.className || data.classId, cols: cols, rows: rows, colDone: colDone, colTotal: colTotal,
+        cellsDone: cellsDone, cellsTotal: cellsTotal, full: full,
+        pct: cellsTotal ? Math.round(cellsDone * 100 / cellsTotal) : 0,
+        truncated: data.truncated, totalAssignments: data.totalAssignments
+      };
+    }
+
+    function dims(n, students) {
+      var dense = students > 30 || n > 14;
+      var cw = n <= 6 ? 100 : n <= 10 ? 80 : n <= 14 ? 62 : n <= 20 ? 52 : 44;
+      var nameW = dense ? 150 : 176;
+      return { dense: dense, cw: cw, noW: 28, nameW: nameW, totW: 80, svg: dense ? 13 : 15,
+               natW: 28 + nameW + n * cw + 80 + 2 };
+    }
+
+    // ---------- HTML ของตัวรายงาน (ขนาดธรรมชาติ ยังไม่ย่อ) ----------
+    function innerHtml(m, o) {
+      var n = m.cols.length, d = dims(n, m.rows.length);
+      var title = o.title || 'รายงานการส่งงานของนักเรียน';
+      var b = H.state.boot || { settings: {}, user: {} };
+      var now = bkkNowIso();
+
+      var head = '<div class="rp-head"><div><div class="rp-school">' + esc(b.settings.schoolName || '') + '</div>' +
+        '<div class="rp-title">' + esc(title) + '</div>' +
+        '<div class="rp-sub">ห้อง ' + esc(m.className) + (o.recipient ? ' · เรียน ครูที่ปรึกษา ' + esc(o.recipient) : '') + '</div></div>' +
+        '<div class="rp-meta">ข้อมูล ณ ' + esc(H.fmtDateTime(now)) + '<br>จัดทำโดย ' + esc(b.user.name || '') + '</div></div>';
+
+      var tiles = '<div class="rp-tiles">' +
+        '<div class="rp-tile"><b>' + m.rows.length + '</b><span>นักเรียน (คน)</span></div>' +
+        '<div class="rp-tile"><b>' + n + '</b><span>งานทั้งหมด (ชิ้น)</span></div>' +
+        '<div class="rp-tile"><b>' + m.full + '</b><span>ส่งครบทุกงาน (คน)</span></div>' +
+        '<div class="rp-tile"><b>' + m.pct + '%</b><span>อัตราการส่งรวม</span></div></div>';
+
+      var th = '<thead><tr><th style="width:' + d.noW + 'px">ที่</th><th class="rp-nm" style="width:' + d.nameW + 'px">ชื่อ-สกุล</th>' +
+        m.cols.map(function (a) {
+          return '<th style="width:' + d.cw + 'px"><div class="rp-at">' + esc(a.title) + '</div><div class="rp-ad">' + esc(shortDate(a.dueDate)) + '</div></th>';
+        }).join('') + '<th style="width:' + d.totW + 'px">ส่งแล้ว<br>/ ทั้งหมด</th></tr></thead>';
+
+      var tb = '<tbody>' + m.rows.map(function (r, i) {
+        var pct = r.total ? Math.round(r.done * 100 / r.total) : 0;
+        return '<tr><td class="rp-no">' + esc(r.number || String(i + 1)) + '</td><td class="rp-nm">' + esc(r.name) + '</td>' +
+          r.cells.map(function (s) { return '<td>' + box(kindOf(s), d.svg) + '</td>'; }).join('') +
+          '<td class="rp-tot">' + r.done + ' / ' + r.total + '<div class="rp-bar"><i style="width:' + pct + '%"></i></div></td></tr>';
+      }).join('') + '</tbody>';
+
+      var tf = '<tfoot><tr><td colspan="2" style="text-align:right">รวมส่งแล้ว</td>' +
+        m.cols.map(function (a, j) { return '<td>' + m.colDone[j] + '/' + m.colTotal[j] + '</td>'; }).join('') +
+        '<td>' + m.pct + '%</td></tr></tfoot>';
+
+      var legend = '<div class="rp-legend"><span>' + box('ok', 13) + ' ส่งแล้ว</span><span>' + box('late', 13) + ' ส่งช้า</span>' +
+        '<span>' + box('over', 13) + ' ยังไม่ส่ง (เลยกำหนด)</span><span>' + box('empty', 13) + ' ยังไม่ส่ง (ยังไม่ถึงกำหนด)</span>' +
+        '<span>' + box('excused', 13) + ' ได้รับการยกเว้น (ไม่นับในจำนวนทั้งหมด)</span></div>';
+
+      var note = m.truncated ? ' · แสดง ' + n + ' งานล่าสุดจากทั้งหมด ' + m.totalAssignments + ' งาน' : '';
+      var foot = '<div class="rp-foot"><span>เรียงงานตามกำหนดส่ง (เก่า → ใหม่)' + esc(note) + '</span><span>Smart Homework Tracker</span></div>';
+
+      return '<div class="rp-inner" style="width:' + d.natW + 'px">' + head + tiles +
+        '<table class="rp-table' + (d.dense ? ' rp-dense' : '') + '" style="width:' + d.natW + 'px">' + th + tb + tf + '</table>' + legend + foot + '</div>';
+    }
+
+    // ---------- วัดขนาดจริงแล้วเลือกแนวกระดาษ/สัดส่วนย่อให้พอดีหน้าเดียว ----------
+    function layout(m, o) {
+      var d = dims(m.cols.length, m.rows.length);
+      var probe = document.createElement('div');
+      probe.style.cssText = 'position:fixed;left:-99999px;top:0;visibility:hidden;';
+      probe.innerHTML = innerHtml(m, o);
+      document.body.appendChild(probe);
+      var natH = probe.firstChild.offsetHeight;
+      document.body.removeChild(probe);
+
+      function fit(orient) {
+        var w = orient === 'portrait' ? 210 : 297, h = orient === 'portrait' ? 297 : 210;
+        var aw = (w - 2 * MARGIN) * PXMM, ah = (h - 2 * MARGIN) * PXMM;
+        return Math.min(aw / d.natW, ah / natH) * 0.97;
+      }
+      var sl = fit('landscape'), sp = fit('portrait');
+      var orient = o.orient === 'portrait' || o.orient === 'landscape' ? o.orient : (sp > sl ? 'portrait' : 'landscape');
+      var scale = Math.min(orient === 'portrait' ? sp : sl, 1.35);
+      return { orient: orient, scale: scale, natW: d.natW, natH: natH, fontPt: 11 * scale * 0.75 };
+    }
+
+    function pageHtml(m, o, lay) {
+      return '<div class="rp-page" style="width:' + Math.floor(lay.natW * lay.scale) + 'px;height:' + Math.ceil(lay.natH * lay.scale) + 'px">' +
+        '<div style="width:' + lay.natW + 'px;transform:scale(' + lay.scale + ');transform-origin:0 0">' + innerHtml(m, o) + '</div></div>';
+    }
+
+    // ---------- เตรียมหน้าพิมพ์ (แยกออกมาเพื่อให้ทดสอบได้) ----------
+    R.prepare = function (m, o, lay) {
+      var host = document.getElementById('reportPrint');
+      if (!host) { host = document.createElement('div'); host.id = 'reportPrint'; document.body.appendChild(host); }
+      host.innerHTML = pageHtml(m, o, lay);
+
+      var st = document.createElement('style');
+      st.id = 'reportPageStyle';
+      st.textContent = '@page { size: A4 ' + lay.orient + '; margin: ' + MARGIN + 'mm; }';
+      document.head.appendChild(st);
+
+      var oldTitle = document.title;
+      document.title = 'ตารางส่งงาน ห้อง ' + m.className + ' ' + bkkNowIso().slice(0, 10);
+      document.body.classList.add('printing-report');
+
+      return function cleanup() {
+        document.body.classList.remove('printing-report');
+        if (st.parentNode) st.parentNode.removeChild(st);
+        document.title = oldTitle;
+        host.innerHTML = '';
+      };
+    };
+
+    function doPrint(m, o, lay) {
+      var cleanup = R.prepare(m, o, lay);
+      var done = function () { cleanup(); window.removeEventListener('afterprint', done); };
+      window.addEventListener('afterprint', done);
+      try { window.print(); } finally { setTimeout(function () { cleanup(); }, 60000); }
+    }
+
+    // ---------- หน้าต่างตัวเลือก + ตัวอย่าง ----------
+    function openReport() {
+      var data = H.matrix && H.matrix.data;
+      if (!data || !data.assignments.length || !data.students.length) {
+        return H.toast('ยังไม่มีข้อมูลสำหรับสร้างรายงาน (ต้องมีทั้งนักเรียนและงาน)', 'warn');
+      }
+      var total = data.assignments.length;
+      var limits = '<option value="0">ทั้งหมด (' + total + ' งาน)</option>';
+      [20, 15, 10, 6].forEach(function (n) { if (n < total) limits += '<option value="' + n + '">ล่าสุด ' + n + ' งาน</option>'; });
+
+      var m = H.modal(
+        '<h2 class="h2">ส่งออกรายงาน PDF หน้าเดียว</h2>' +
+        '<p class="muted small mt">รายงานตารางการส่งงานของห้อง ' + esc(data.className || data.classId) + ' สำหรับส่งให้ครูที่ปรึกษา</p>' +
+        '<div class="toolbar cols mt">' +
+          '<div class="field" style="margin:0"><label for="rpLimit">งานที่แสดง</label><select class="input" id="rpLimit">' + limits + '</select></div>' +
+          '<div class="field" style="margin:0"><label for="rpOrient">แนวกระดาษ</label><select class="input" id="rpOrient"><option value="auto">อัตโนมัติ (พอดีที่สุด)</option><option value="landscape">แนวนอน</option><option value="portrait">แนวตั้ง</option></select></div>' +
+        '</div>' +
+        '<div class="field mt" style="margin-bottom:8px"><label for="rpRecipient">ครูที่ปรึกษา (ไม่บังคับ แสดงในหัวรายงาน)</label><input class="input" id="rpRecipient" type="text" maxlength="60" placeholder="เช่น ครูสมศรี ใจดี"></div>' +
+        '<div class="muted small" id="rpInfo">กำลังสร้างตัวอย่าง...</div>' +
+        '<div class="rp-prev mt" id="rpPrev"></div>' +
+        '<p class="muted small mt">กด “พิมพ์ / บันทึกเป็น PDF” แล้วเลือกปลายทางเป็น <b>บันทึกเป็น PDF</b> (Save as PDF) ขนาดกระดาษ A4 ปิด “ส่วนหัวและส่วนท้าย” (Headers and footers) ปล่อยสัดส่วนเป็น 100% ระบบจัดให้พอดีหน้าเดียวแล้ว ชื่อไฟล์ตั้งให้อัตโนมัติ</p>' +
+        '<div class="modal-actions" style="position:sticky;bottom:-18px;background:var(--surface);padding:10px 0 4px"><button class="btn ghost" type="button" data-r="x">ปิด</button>' +
+        '<button class="btn primary" type="button" data-r="print">🖨️ พิมพ์ / บันทึกเป็น PDF</button></div>');
+
+      var r = m.root, model = null, o = null, lay = null;
+      r.querySelector('[data-r="x"]').onclick = m.close;
+      r.querySelector('[data-r="print"]').onclick = function () { if (model) doPrint(model, o, lay); };
+
+      function refresh() {
+        o = { limit: parseInt(r.querySelector('#rpLimit').value, 10), orient: r.querySelector('#rpOrient').value,
+              recipient: r.querySelector('#rpRecipient').value.trim() };
+        model = buildModel(data, o);
+        lay = layout(model, o);
+        R.model = model; R.lay = lay; R.opts = o;
+
+        var paperW = (lay.orient === 'portrait' ? 210 : 297) * PXMM, paperH = (lay.orient === 'portrait' ? 297 : 210) * PXMM;
+        var prev = r.querySelector('#rpPrev');
+        prev.innerHTML = '<div class="rp-paper" style="width:' + paperW + 'px;height:' + paperH + 'px;padding:' + (MARGIN * PXMM) + 'px">' + pageHtml(model, o, lay) + '</div>';
+        var k = (prev.clientWidth || 480) / paperW;
+        prev.firstChild.style.transform = 'scale(' + k + ')';
+        prev.style.height = Math.ceil(paperH * k) + 'px';
+
+        var info = 'แนว' + (lay.orient === 'portrait' ? 'ตั้ง' : 'นอน') + ' · นักเรียน ' + model.rows.length + ' คน · งาน ' + model.cols.length +
+          ' ชิ้น · ตัวอักษรบนกระดาษประมาณ ' + lay.fontPt.toFixed(1) + ' pt';
+        var warn = lay.fontPt < 5.2;
+        r.querySelector('#rpInfo').innerHTML = esc(info) + (warn ? '<br><b style="color:var(--bad)">ตัวอักษรเล็กมาก อ่านยากเมื่อพิมพ์ ลองเลือก “งานที่แสดง” ให้น้อยลง</b>' : '');
+        r.querySelector('[data-r="print"]').disabled = false;
+      }
+
+      ['#rpLimit', '#rpOrient'].forEach(function (id) { r.querySelector(id).addEventListener('change', refresh); });
+      r.querySelector('#rpRecipient').addEventListener('input', refresh);
+      var ready = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+      ready.then(refresh);
+    }
+
+    R.open = openReport;
+
+    document.addEventListener('hw:ready', function (e) {
+      if (!e.detail || e.detail.page !== 'teacher' || R.bound) return;
+      R.bound = true;
+      $('#btnMatrixPdf').addEventListener('click', openReport);
     });
   })();
 
