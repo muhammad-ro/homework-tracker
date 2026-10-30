@@ -3,38 +3,86 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0e1522">
-  <title>Smart Homework Tracker — ครู</title>
+  <meta name="theme-color" content="#1e3a8a">
+  <title>ระบบตรวจการบ้านนักเรียน — ครู</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Mitr:wght@400;500&family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script>
     (function () {
       var t = null;
       try { t = localStorage.getItem('hw_theme'); } catch (e) {}
-      if (t !== 'light' && t !== 'dark') {
-        t = (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
-      }
+      if (t !== 'light' && t !== 'dark') t = 'light';
       document.documentElement.setAttribute('data-theme', t);
     })();
   </script>
 <style>
 /* ============================================================
    Smart Homework Tracker — CSS.html (เฟส 3)
-   ธีม Executive Dark (ค่าเริ่มต้น) + โหมดสว่างผ่าน [data-theme="light"]
+   ธีม Classic Navy (สว่าง ค่าเริ่มต้น) + โหมดมืดผ่าน [data-theme="dark"]
    ============================================================ */
+/* โทน "Classic Navy": น้ำเงินเข้ม + ส้มทอง พื้นขาวสะอาด (ค่าเริ่มต้น = สว่าง) */
 :root {
+  color-scheme: light;
+  --bg: #f1f5f9;
+  --bg-2: #e8eef6;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --line: #e2e8f0;
+  --field-bg: #ffffff;
+  --field-line: #cbd5e1;
+  --text: #0f172a;
+  --muted: #64748b;
+
+  --primary: #1e3a8a;
+  --primary-2: #2563eb;
+  --primary-hover: #1e40af;
+  --on-primary: #ffffff;
+  --ghost-text: #1e3a8a;
+  --head-bg: #1e3a8a;
+  --head-text: #ffffff;
+
+  --accent: #f59e0b;
+  --accent-2: #fbbf24;
+  --on-accent: #1e293b;
+  --focus: #2563eb;
+
+  --ok: #15803d;     --ok-bg: rgba(21, 128, 61, .10);
+  --late: #b45309;   --late-bg: rgba(180, 83, 9, .10);
+  --soon: #a16207;   --soon-bg: rgba(161, 98, 7, .12);
+  --bad: #dc2626;    --bad-bg: rgba(220, 38, 38, .09);
+  --info: #1d4ed8;   --info-bg: rgba(29, 78, 216, .09);
+  --neutral: #64748b; --neutral-bg: rgba(100, 116, 139, .10);
+
+  --radius: 22px;
+  --radius-sm: 12px;
+  --shadow: 0 10px 30px rgba(15, 23, 42, .07);
+  --font-head: 'Sarabun', 'Noto Sans Thai', system-ui, sans-serif;
+  --font-body: 'Sarabun', 'Noto Sans Thai', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-t: env(safe-area-inset-top, 0px);
+  --bar-h: 76px;
+}
+
+:root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #0e1522;
-  --bg-2: #131c2d;
-  --surface: #18233a;
-  --surface-2: #1f2d4a;
-  --line: #2b3b5c;
-  --text: #eef2f9;
-  --muted: #a3b3cf;
-  --accent: #d9a441;
-  --accent-2: #f0c36d;
-  --on-accent: #1a1405;
+  --bg: #0b1220;
+  --bg-2: #101a2e;
+  --surface: #131d33;
+  --surface-2: #1a2744;
+  --line: #26365a;
+  --field-bg: #0f1a30;
+  --field-line: #33466f;
+  --text: #e8eef9;
+  --muted: #9fb0cc;
+
+  --primary: #2563eb;
+  --primary-2: #60a5fa;
+  --primary-hover: #1d4ed8;
+  --on-primary: #ffffff;
+  --ghost-text: #e8eef9;
+  --head-bg: #1e3a8a;
+  --head-text: #ffffff;
   --focus: #8ec5ff;
 
   --ok: #3ddc97;     --ok-bg: rgba(61, 220, 151, .14);
@@ -43,37 +91,7 @@
   --bad: #ff7676;    --bad-bg: rgba(255, 118, 118, .14);
   --info: #7ab4ff;   --info-bg: rgba(122, 180, 255, .14);
   --neutral: #a3b3cf; --neutral-bg: rgba(163, 179, 207, .12);
-
-  --radius: 16px;
-  --radius-sm: 10px;
   --shadow: 0 10px 30px rgba(0, 0, 0, .35);
-  --font-head: 'Mitr', 'Sarabun', 'Noto Sans Thai', system-ui, sans-serif;
-  --font-body: 'Sarabun', 'Noto Sans Thai', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --safe-b: env(safe-area-inset-bottom, 0px);
-  --safe-t: env(safe-area-inset-top, 0px);
-}
-
-:root[data-theme="light"] {
-  color-scheme: light;
-  --bg: #f2f5fa;
-  --bg-2: #e9eef7;
-  --surface: #ffffff;
-  --surface-2: #f4f7fc;
-  --line: #d5deec;
-  --text: #121b2e;
-  --muted: #55657f;
-  --accent: #b9831a;
-  --accent-2: #9a6a0f;
-  --on-accent: #ffffff;
-  --focus: #1d5fd1;
-
-  --ok: #0c8a57;     --ok-bg: rgba(12, 138, 87, .11);
-  --late: #b86400;   --late-bg: rgba(184, 100, 0, .11);
-  --soon: #8a6d00;   --soon-bg: rgba(138, 109, 0, .12);
-  --bad: #c62f3a;    --bad-bg: rgba(198, 47, 58, .10);
-  --info: #1d5fd1;   --info-bg: rgba(29, 95, 209, .10);
-  --neutral: #55657f; --neutral-bg: rgba(85, 101, 127, .10);
-  --shadow: 0 8px 24px rgba(24, 44, 84, .10);
 }
 
 /* ---------- พื้นฐาน ---------- */
@@ -365,12 +383,12 @@ table.matrix { border-collapse: separate; border-spacing: 0; min-width: 100%; fo
 .rp-inner * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 .rp-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; padding-bottom: 8px; border-bottom: 3px solid #b9831a; }
 .rp-school { font-size: 11px; color: #6b7a99; font-weight: 600; }
-.rp-title { font-family: 'Mitr', 'Sarabun', sans-serif; font-size: 22px; font-weight: 500; line-height: 1.2; color: #1f2d4a; margin: 2px 0 0; }
+.rp-title { font-family: 'Sarabun', sans-serif; font-size: 23px; font-weight: 800; line-height: 1.2; color: #1f2d4a; margin: 2px 0 0; }
 .rp-sub { font-size: 13px; color: #44547a; margin-top: 2px; }
 .rp-meta { text-align: right; font-size: 11px; color: #6b7a99; line-height: 1.5; white-space: nowrap; }
 .rp-tiles { display: flex; gap: 8px; margin: 10px 0; }
 .rp-tile { flex: 1; border: 1px solid #d9dfeb; border-left: 4px solid #b9831a; border-radius: 8px; padding: 5px 10px; background: #f6f8fc; }
-.rp-tile b { display: block; font-family: 'Mitr', 'Sarabun', sans-serif; font-weight: 500; font-size: 18px; line-height: 1.15; color: #1f2d4a; }
+.rp-tile b { display: block; font-family: 'Sarabun', sans-serif; font-weight: 700; font-size: 18px; line-height: 1.15; color: #1f2d4a; }
 .rp-tile span { font-size: 10.5px; color: #6b7a99; }
 .rp-table { border-collapse: collapse; table-layout: fixed; }
 .rp-table th, .rp-table td { border: 1px solid #d9dfeb; padding: 3px 4px; text-align: center; vertical-align: middle; color: #1f2d4a; }
@@ -400,6 +418,92 @@ table.matrix { border-collapse: separate; border-spacing: 0; min-width: 100%; fo
   body.printing-report #reportPrint, body.printing-report #reportPrint * { visibility: visible !important; }
 }
 
+/* ============================================================
+   ธีม Classic Navy: หัวเว็บไล่สีน้ำเงิน เส้นส้ม โลโก้กลมสีส้ม การ์ดขาวมุมโค้ง
+   ============================================================ */
+body { background: var(--bg); }
+h1, h2, h3 { font-weight: 700; }
+.stat b { font-weight: 700; }
+
+/* หัวเว็บ */
+.app-bar {
+  padding: calc(12px + var(--safe-t)) 16px 12px;
+  background: linear-gradient(90deg, #0f172a 0%, #1e3a8a 52%, #2563eb 100%);
+  border-bottom: 4px solid #f59e0b;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, .18);
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+}
+.brand { gap: 12px; }
+.brand-mark { width: 46px; height: 46px; border-radius: 50%; background: #f59e0b; color: #1e3a8a; box-shadow: 0 0 0 3px rgba(255, 255, 255, .92); }
+.brand-mark svg { display: block; }
+.brand-title { color: #fff; font-weight: 800; font-size: clamp(1.02rem, .9rem + 1.3vw, 1.75rem); line-height: 1.2; white-space: normal; }
+.brand-sub { color: #fbbf24; font-weight: 600; font-size: clamp(.82rem, .75rem + .5vw, 1.05rem); white-space: normal; }
+.app-bar .icon-btn, .app-bar .user-chip { background: rgba(255, 255, 255, .12); border: 1px solid rgba(255, 255, 255, .32); color: #fff; }
+.app-bar .user-chip .avatar { background: #f59e0b; color: #1e3a8a; }
+@media (max-width: 520px) {
+  .user-chip { padding: 4px; }
+  .user-chip span.name { display: none; }
+}
+body[data-page="teacher"] .app-bar { padding-left: max(16px, calc((100vw - 980px) / 2 + 16px)); padding-right: max(16px, calc((100vw - 980px) / 2 + 16px)); }
+body[data-page="student"] .app-bar { padding-left: max(16px, calc((100vw - 720px) / 2 + 16px)); padding-right: max(16px, calc((100vw - 720px) / 2 + 16px)); }
+@media (min-width: 900px) {
+  .app-bar { padding-top: 18px; padding-bottom: 18px; }
+  .brand-mark { width: 60px; height: 60px; }
+  .brand { gap: 16px; }
+}
+
+/* การ์ดและหัวข้อ */
+.card { padding: 20px; }
+.card-title .h2, .card > .h2:first-child, .card > .h1:first-child { border-left: 4px solid var(--primary); padding-left: 12px; }
+.hw-item { border-radius: 16px; box-shadow: 0 2px 8px rgba(15, 23, 42, .04); }
+.modal { border-radius: 24px 24px 0 0; }
+@media (min-width: 720px) { .modal { border-radius: 24px; } }
+
+/* ฟอร์ม */
+.field label { font-weight: 700; color: var(--text); }
+.input { min-height: 52px; border-radius: 12px; background: var(--field-bg); border: 1.5px solid var(--field-line); }
+.input:focus { border-color: var(--primary-2); box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary-2) 18%, transparent); }
+.check input { accent-color: var(--primary); }
+
+/* ปุ่ม */
+.btn.primary { background: var(--primary); color: var(--on-primary); box-shadow: 0 6px 14px rgba(30, 58, 138, .22); }
+.btn.primary:not(:disabled):hover { filter: none; background: var(--primary-hover); }
+.btn.ghost { background: var(--surface); color: var(--ghost-text); border-color: var(--field-line); }
+.btn.ghost:not(:disabled):hover { background: var(--surface-2); }
+.icon-btn { background: var(--surface); border-color: var(--field-line); color: var(--ghost-text); }
+.chip { border-color: var(--field-line); }
+.chip[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+
+/* ความคืบหน้า / รูปโปรไฟล์ */
+.progress > span { background: linear-gradient(90deg, var(--primary-2), var(--ok)); }
+.avatar { border-radius: 50%; background: var(--accent); color: #1e3a8a; font-weight: 800; }
+.big-num { color: var(--primary); }
+:root[data-theme="dark"] .big-num { color: var(--text); }
+
+/* ตาราง: หัวสีน้ำเงินเข้ม */
+.tbl th { background: var(--head-bg); color: var(--head-text); }
+.matrix thead th, .matrix thead th.m-name { background: var(--head-bg); color: var(--head-text); }
+.matrix .m-d { color: #cbd5e1; }
+.matrix .m-c { color: #fbbf24; }
+.matrix td.m-cell:hover { outline-color: var(--primary-2); }
+
+/* เมนูหลัก: มือถือ = แถบล่าง, จอกว้าง = แคปซูลใต้หัวเว็บ */
+.tabbar { background: var(--surface); backdrop-filter: none; -webkit-backdrop-filter: none; box-shadow: 0 -6px 20px rgba(15, 23, 42, .08); }
+.tab[aria-selected="true"] { color: var(--primary); background: color-mix(in srgb, var(--primary) 10%, transparent); }
+:root[data-theme="dark"] .tab[aria-selected="true"] { color: var(--primary-2); }
+@media (min-width: 900px) {
+  body[data-page="teacher"] .tabbar {
+    position: sticky; top: var(--bar-h); bottom: auto; left: auto; right: auto; z-index: 25;
+    width: calc(100% - 32px); max-width: 948px; margin: 16px auto 0; padding: 8px; gap: 8px;
+    border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow);
+  }
+  body[data-page="teacher"] .tab { grid-auto-flow: column; justify-content: center; align-items: center; gap: 10px; min-height: 52px; font-size: 1.02rem; }
+  body[data-page="teacher"] .tab .ti { font-size: 1.25rem; }
+  body[data-page="teacher"] .tab[aria-selected="true"] { background: var(--primary); color: var(--on-primary); box-shadow: 0 4px 12px rgba(30, 58, 138, .25); }
+  body[data-page="teacher"] .container { padding-bottom: 32px; }
+  body[data-page="teacher"] #toastHost { bottom: calc(24px + var(--safe-b)); }
+}
+
 /* ---------- ลดการเคลื่อนไหวตามระบบ ---------- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
@@ -421,9 +525,9 @@ table.matrix { border-collapse: separate; border-spacing: 0; min-width: 100%; fo
      ====================================================== -->
 <header class="app-bar">
   <div class="brand">
-    <div class="brand-mark" aria-hidden="true">✓</div>
+    <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28" fill="#1e3a8a" aria-hidden="true"><path d="M12 3 1 9l11 6 9-4.9V17h2V9L12 3z"/><path d="M5 13.2V17c0 1.7 3.1 3 7 3s7-1.3 7-3v-3.8l-7 3.8-7-3.8z"/></svg></div>
     <div>
-      <div class="brand-title">Smart Homework Tracker</div>
+      <div class="brand-title">ระบบตรวจการบ้านนักเรียน</div>
       <div class="brand-sub" id="schoolName">สำหรับครู</div>
     </div>
   </div>
@@ -435,6 +539,15 @@ table.matrix { border-collapse: separate; border-spacing: 0; min-width: 100%; fo
     <button class="icon-btn" id="themeToggle" type="button" aria-label="สลับโหมดมืด/สว่าง">◐</button>
   </div>
 </header>
+
+<nav class="tabbar" id="tabbar" aria-label="เมนูหลัก" hidden>
+  <button class="tab" type="button" data-view-target="scan" aria-selected="true"><span class="ti">📷</span>สแกน</button>
+  <button class="tab" type="button" data-view-target="status" aria-selected="false"><span class="ti">📋</span>ติดตามงาน</button>
+  <button class="tab" type="button" data-view-target="matrix" aria-selected="false"><span class="ti">📊</span>ตารางห้อง</button>
+  <button class="tab" type="button" data-view-target="missing" aria-selected="false"><span class="ti">⚠️</span>ค้างส่ง</button>
+  <button class="tab" type="button" data-view-target="print" aria-selected="false"><span class="ti">🖨️</span>ใบงาน QR</button>
+  <button class="tab" type="button" data-view-target="manage" aria-selected="false"><span class="ti">⚙️</span>จัดการ</button>
+</nav>
 
 <!-- กำลังตรวจสิทธิ์ -->
 <div class="fullscreen-msg" id="bootLoading" aria-busy="true">
@@ -721,14 +834,6 @@ table.matrix { border-collapse: separate; border-spacing: 0; min-width: 100%; fo
   </section>
 </main>
 
-<nav class="tabbar" id="tabbar" aria-label="เมนูหลัก" hidden>
-  <button class="tab" type="button" data-view-target="scan" aria-selected="true"><span class="ti">📷</span>สแกน</button>
-  <button class="tab" type="button" data-view-target="status" aria-selected="false"><span class="ti">📋</span>ติดตามงาน</button>
-  <button class="tab" type="button" data-view-target="matrix" aria-selected="false"><span class="ti">📊</span>ตารางห้อง</button>
-  <button class="tab" type="button" data-view-target="missing" aria-selected="false"><span class="ti">⚠️</span>ค้างส่ง</button>
-  <button class="tab" type="button" data-view-target="print" aria-selected="false"><span class="ti">🖨️</span>ใบงาน QR</button>
-  <button class="tab" type="button" data-view-target="manage" aria-selected="false"><span class="ti">⚙️</span>จัดการ</button>
-</nav>
 
 <!-- แม่แบบฟอร์มสร้าง/แก้ไขงาน (ใช้ในเฟส 5) -->
 <template id="tplAssignmentForm">
@@ -757,7 +862,7 @@ table.matrix { border-collapse: separate; border-spacing: 0; min-width: 100%; fo
      ตั้งค่าตรงนี้ครั้งเดียว: วางลิงก์เว็บแอป Apps Script (ที่ลงท้ายด้วย /exec)
      ต้องเป็น deployment ที่ตั้ง Who has access = Anyone
      ============================================================ */
-  var API_URL = 'https://script.google.com/macros/s/AKfycbznd6G1YYkAYR34woXQGELCPb79iyR_GLDcH9GiQBiIDgKUXiX59sLUWYXHnNkIVE97Ww/exec';
+  var API_URL = 'PUT_YOUR_WEB_APP_URL_HERE';
   window.APP_CONFIG = { page: 'teacher', appUrl: '', apiUrl: API_URL };
 </script>
 <script>
@@ -977,6 +1082,16 @@ table.matrix { border-collapse: separate; border-spacing: 0; min-width: 100%; fo
     });
   }
   applyThemeIcon();
+
+  // ความสูงหัวเว็บ (ใช้ให้แถบเมนูแบบแคปซูลเกาะใต้หัวเว็บบนจอกว้าง)
+  function syncBarH() {
+    var b = $('.app-bar');
+    if (b) document.documentElement.style.setProperty('--bar-h', b.offsetHeight + 'px');
+  }
+  window.addEventListener('resize', syncBarH);
+  window.addEventListener('load', syncBarH);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(syncBarH);
+  syncBarH();
 
   // ---------- แบนเนอร์ออฟไลน์ ----------
   function syncOnline() {
